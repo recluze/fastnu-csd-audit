@@ -14,6 +14,7 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.CharField')(max_length=200)),
             ('age', self.gf('django.db.models.fields.CharField')(default=25, max_length=200)),
             ('designation', self.gf('django.db.models.fields.CharField')(max_length=1)),
+            ('joining_date', self.gf('django.db.models.fields.DateField')()),
         ))
         db.send_create_signal('cscm', ['Instructor'])
 
@@ -136,6 +137,7 @@ class Migration(SchemaMigration):
             'age': ('django.db.models.fields.CharField', [], {'default': '25', 'max_length': '200'}),
             'designation': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'joining_date': ('django.db.models.fields.DateField', [], {}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '200'})
         },
         'cscm.weekplan': {
