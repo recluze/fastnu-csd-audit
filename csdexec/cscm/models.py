@@ -36,14 +36,21 @@ class Course(models.Model):
     year = models.PositiveIntegerField()
     batch = models.CharField(max_length=10, default='BS11')
     semester = models.CharField(max_length=10, choices=SEMESTER_CHOICES)
-    grade_distribution = models.TextField()
+    grade_distribution = models.TextField(blank=True)
     course_type = models.CharField(max_length=20, choices=COURSE_TYPE_CHOICES)
-    pre_reqs = models.TextField()
-    course_url = models.CharField('Course URL', max_length=256)
+    pre_reqs = models.TextField(blank=True)
+    course_url = models.CharField('Course URL', max_length=256, blank=True)
     lab_projects = models.TextField('Laboratory Projects/Experiments', blank=True)
     prog_assignments = models.TextField('Programming Assignments', blank=True)
-    class_time_spent = models.CharField(max_length=50, help_text="Please use time spent on each section in terms of credit hours: theory,problem analysis,solution design,ethical issues", default=',,,')
-    oral_written_details =  models.CharField('Oral/Written Comm.', max_length=20, help_text="Fill for this statement: <emph>Every student is required to submit at least __ written reports of __ pages and to make __ presentations of __ minutes.</emph> Please use the format: number of reports,pages, number of presentations, minutes", default=',,,')
+    class_time_spent_theory = models.CharField('Theory', max_length=50, blank=True) 
+    class_time_spent_analysis = models.CharField('Analysis', max_length=50, blank=True)
+    class_time_spent_design = models.CharField('Design', max_length=50, blank=True)
+    class_time_spent_ethics = models.CharField('Ethics', max_length=50, blank=True)
+    communciation_details_num_reports = models.CharField('Reports', help_text='Oral communication number of reports', max_length=20, blank=True)
+    communciation_details_pages = models.CharField('Pages', help_text='Oral communication number of pages per report', max_length=20, blank=True)
+    communciation_details_num_pres = models.CharField('Presentations', help_text='Oral communication number of presentations', max_length=20, blank=True)
+    communciation_details_num_mins = models.CharField('Minutes', help_text='Oral communication minutes per presentation', max_length=20, blank=True)
+    
 
     def __unicode__(self): 
         fields = [self.course_name, "(" + str(self.semester) + " " + str(self.year) + ")"]
@@ -53,11 +60,11 @@ class Course(models.Model):
 
 class CourseOutline(models.Model):
     course = models.OneToOneField(Course)
-    objectives = models.TextField()
-    text_books = models.TextField()
-    recommended_books = models.TextField()
-    course_policies = models.TextField()
-    other_information = models.TextField()
+    objectives = models.TextField(blank=True)
+    text_books = models.TextField(blank=True)
+    recommended_books = models.TextField(blank=True)
+    course_policies = models.TextField(blank=True)
+    other_information = models.TextField(blank=True)
     
     def __unicode__(self): 
         fields = [str(self.course)]
@@ -83,16 +90,16 @@ class CourseLogEntry(models.Model):
     WEEK_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 17)])
 
     course = models.ForeignKey(Course)
-    lecture_no = models.CharField(max_length=2, choices=LECTURE_NUM_CHOICES)
-    week_no = models.CharField(max_length=2, choices=WEEK_NUM_CHOICES)
+    lecture_no = models.CharField(max_length=2)
+    week_no = models.CharField(max_length=2)
 
     lecture_date = models.DateField()
     
     # widget=forms.Textarea(attrs={'size', 30})
-    duration = models.CharField(max_length=5)
+    duration = models.CharField(max_length=5, default=1.5)
     topics_covered = models.TextField()
-    evaluation_instruments = models.TextField()
-    
+    evaluation_instruments = models.TextField(blank=True)
+        
     def __unicode__(self): 
         fields = ['Lecture ', self.lecture_no, str(self.course)]
         desc_name = ' '.join(fields)
