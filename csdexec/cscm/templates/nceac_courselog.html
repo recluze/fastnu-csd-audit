@@ -1,0 +1,15 @@
+<html>
+	<title>FAST NU Computer Science Department</title>
+	<body>
+		<h1>FAST NU Computer Science Department - NCEAC Courselog</h1>
+		<strong>Please select the course to generate log for.</strong>
+
+		<div class='form'>
+			<form method='post'>
+				{%csrf_token%}
+				{{form.as_ul}}
+				<input type='submit' value='Generate' />
+			</form>
+		</div>
+	</body>
+</html>

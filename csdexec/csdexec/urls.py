@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 #from cscm.views import current_datetime 
-from cscm.views.test import make_hello_report
+from cscm.views.reports_list import *
+from cscm.views.report_nceac_courselog import *  
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -17,8 +18,9 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', include(admin.site.urls)),
-    # url(r'^helloview', current_datetime)
-    url(r'^helloview', make_hello_report)
+    # url(r'^helloview', make_hello_report),
+    url(r'^reports/all', display_complete_report_list),
+    url(r'^reports/nceac/courselog', report_nceac_courselog),
 )
 
 

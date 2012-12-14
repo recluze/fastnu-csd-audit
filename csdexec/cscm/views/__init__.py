@@ -1,1 +1,1 @@
-from cscm.views import test 
+from cscm.views import *

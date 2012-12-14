@@ -12,9 +12,10 @@ import datetime
 from nceac_styles import *
 
 from cscm.models import CourseLogEntry
+from cscm.models import Course
 
 
-def make_hello_report(request):
+def report_nceac_courselog_pdf(request, course_name):
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="somefile.pdf"' 
     
@@ -45,7 +46,8 @@ def make_hello_report(request):
     
     datas = [[headDate, headDuration, headTopics, headEval, headSign]]
     
-    courselogentry_data = CourseLogEntry.objects.all()
+    # courselogentry_data = CourseLogEntry.objects.all()
+    courselogentry_data = course_name.courselogentry_set.all()
     
 
     # for x in range(1, 50):
