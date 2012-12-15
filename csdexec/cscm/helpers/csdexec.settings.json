@@ -1,4 +1,6 @@
 {
-  "inst_name": "FAST National University of Computer and Emerging Sciences",
-  "dept_name": "Department of Computer Science"
+	"inst_name": "FAST National University of Computer and Emerging Sciences",
+	"dept_name": "Department of Computer Science",
+	"campus_name": "Peshawar Campus",
+	"logo_filename": "fastlogo.png"
 }

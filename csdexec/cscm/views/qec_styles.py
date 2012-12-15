@@ -9,28 +9,21 @@ import copy
 
 class Qec: 
 
-    def get_header_footer(self, doccode): 
+    def get_header_footer(self): 
         def qec_header_footer(canvas, doc):
+            styles = getSampleStyleSheet()
+            styleN = styles['Normal']
+            styleB = copy.copy(styles['Normal'])
+            styleB.fontName = 'Helvetica-Bold'
+
             canvas.saveState()
             now = datetime.datetime.now()
             
             width, height = A4
             titleoffset = 100
-            
         
-            canvas.line(50, height - 10, width - 50, height - 10)
-            canvas.line(titleoffset, height - 80, width - 50, height - 80)
-            
-            
-            canvas.setFontSize(18) #choose your font type and font size
-            canvas.drawString(titleoffset, height - 40, "Quality Enhancement Cell")
-            canvas.drawString(titleoffset, height - 60, "QEC")
-            
-            
-            canvas.setFontSize(10) #choose your font type and font size
-            canvas.drawString((width - 80) - (len(doccode) * 5), height - 100, doccode)
-           
-            
+            # canvas.line(50, height - 10, width - 50, height - 10)
+            # canvas.line(titleoffset, height - 80, width - 50, height - 80)
             #    P = Paragraph(str(now), styleN)
             # w, h = P.wrap(doc.width, doc.bottomMargin)
             #P.drawOn(canvas, doc.leftMargin, h)
@@ -58,13 +51,13 @@ class Qec:
         styleSmaller.fontSize = 8
         styleB.fontName = 'Helvetica-Bold'
         styleH = styles['Heading1']
-        styleH.leading = 24
+        # styleH.leading = 24
         styleH.fontSize = 12
         
         return styleN, styleB, styleH, styleSmaller 
         
     def getFrame(self, doc):
-        frame = Frame(doc.leftMargin - 20 , doc.bottomMargin - 20, doc.width + 40, doc.height - 30,
+        frame = Frame(doc.leftMargin - 20 , doc.bottomMargin - 20, doc.width + 40, doc.height + 50,
                id='normal')
 
         return frame 

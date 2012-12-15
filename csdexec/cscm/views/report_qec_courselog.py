@@ -1,10 +1,12 @@
 # required for PDF generation 
 from __future__ import unicode_literals
 
+import os 
+
 from io import BytesIO
 
 from reportlab.lib.pagesizes import letter, A4, cm
-from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate
+from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate, Image
 from reportlab.platypus.flowables import PageBreak 
 from reportlab.lib import colors
 
@@ -93,7 +95,10 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     styleN, styleB, styleH, styleSmaller = org.getTextStyles()
     doc = FooterDocTemplate(buffer, pagesize=A4)
     frame = org.getFrame(doc)
-    template = PageTemplate(id='test', frames=frame, onPage=org.get_header_footer(doccode="Performa 11"))
+    
+    logo_filename = os.path.join(os.path.dirname(__file__), 'images', get_config('logo_filename'))
+
+    template = PageTemplate(id='test', frames=frame, onPage=org.get_header_footer())
     doc.addPageTemplates([template])
     
     # Our main content holder 
@@ -101,23 +106,44 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     elements = []
     
     # title page 
-    inst_name_head = Paragraph('Name of the Institution', styleB)
-    inst_name = Paragraph(get_config('inst_name'), styleN)
-    dept_name_head = Paragraph('Department', styleB)
-    dept_name = Paragraph(get_config('dept_name'), styleN)
+    # SYMBOLS FOR CHECKED/UNCHECKED: \u2713 \u26aa  or x 
+    inst_name = Paragraph(get_config('inst_name'), styleH)
+    dept_name = Paragraph(get_config('dept_name') + ", " + get_config('campus_name'), styleB)
+    report_title = Paragraph('Weekly Progress Report (Performa 11)', styleB)
+    semester = Paragraph("(" + str(course_name.semester) + " " + str(course_name.year) + ")", styleB)
+    logobox = Image(logo_filename, 100, 110)
     
-    metainfo_tablestyle = [
-                    # ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-                    ('LINEBELOW', (1, 0), (1, -1), 0.25, colors.black),
-                    # ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
-                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                    ]
-    metainfo = [[inst_name_head, inst_name], [dept_name_head, dept_name]]
-    t1 = LongTable(metainfo, colWidths=[3 * cm, 12 * cm])
+    metainfo = [[logobox, inst_name],
+                ['', dept_name],
+                ['', report_title],
+                ['', semester],
+                ]
+    metainfo_tablestyle = [('SPAN', (0, 0), (0, -1))]
+    t1 = LongTable(metainfo, colWidths=[5 * cm, 14 * cm])
     t1.setStyle(TableStyle(metainfo_tablestyle))
     elements.append(t1)
     
-    elements.append(PageBreak())
+    # doc._draw_header_logo('/home/nam/documents/exps/django-tut/fastnu-csd-audit/csdexec/cscm/views/images/fastlogo.png', 10, 10)
+    
+    elements.append(Spacer(1, 0.5 * cm))
+    
+    course_name_label = Paragraph(course_name.course_name, styleB)
+    inst_name_label = Paragraph(str(course_name.instructor), styleB)
+    from_week_label = Paragraph(str(week_range[0]), styleB)
+    to_week_label = Paragraph(str(week_range[1]), styleB)
+    metainfo = [['Course Name', course_name_label,
+                 'Instructor', inst_name_label],
+                ['From Week', from_week_label,
+                 'To Week', to_week_label],
+                ]
+    metainfo_tablestyle = []
+    t1 = LongTable(metainfo, colWidths=[3 * cm, 6 * cm, 3 * cm, 6 * cm])
+    t1.setStyle(TableStyle(metainfo_tablestyle))
+    elements.append(t1)
+    
+    elements.append(Spacer(1, 0.5 * cm))
+    
+    # elements.append(PageBreak())
 
     
     # =================== TABLE DATA 
@@ -126,21 +152,22 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     headDuration = Paragraph('Duration', styleB)
     headTopics = Paragraph('Topics Covered', styleB)
     headEval = Paragraph('Evaluation Instruments Used', styleB)
+    headRead = Paragraph('Reading Materials', styleB)
     headSign = Paragraph('Signature', styleB)
     emptypara = Paragraph(' ', styleN)
     
-    datas = [[headDate, headDuration, headTopics, headEval, headSign]]
+    datas = [[headDate, headDuration, headTopics, headEval, headRead, headSign]]
     
     # courselogentry_data = CourseLogEntry.objects.all()
     courselogentry_data = course_name.courselogentry_set.all()
     
-
-    # for x in range(1, 50):
-    #    datas.append(
-    #        [x, x + 1, x + 2, x + 4, x + 5]
-    #    )
     start_week = int(week_range[0])
     end_week = int(week_range[1])
+    num_assignments = 0 
+    num_quizzes = 0 
+    gross_contents_covered = ''
+    all_contents_covered = True 
+    
     for i in courselogentry_data: 
         if int(i.week_no) < start_week or int(i.week_no) > end_week: 
             continue 
@@ -149,16 +176,56 @@ def report_qec_courselog_pdf(request, course_name, week_range):
         l_duration = Paragraph(str(i.duration).replace('\n', '<br />'), styleSmaller)
         l_topics_covered = Paragraph(i.topics_covered.replace('\n', '<br />').replace('&', '&amp;'), styleSmaller)
         l_eval = Paragraph(str(i.evaluation_instruments).replace('\n', '<br />'), styleSmaller)
-        emptypara = Paragraph(str(i.week_no), styleSmaller)
-        datas.append([l_date, l_duration, l_topics_covered, l_eval, emptypara])
-    
-    #for i in range(entered_logs, 16): 
-    #    data.append([[emptypara, emptypara, emptypara, emptypara, emptypara]])
+        l_reading = Paragraph(clean_string(i.reading_materials), styleSmaller)
+        emptypara = Paragraph(' ', styleSmaller)
+        datas.append([l_date, l_duration, l_topics_covered, l_eval, l_reading, emptypara])
         
-    t = LongTable(datas, colWidths=[1.5 * cm, 2 * cm, 8 * cm, 3 * cm, 3 * cm], repeatRows=1)
+        # logic for calculating meta data 
+        num_assignments += i.evaluation_instruments.lower().count('assignment')
+        num_quizzes += i.evaluation_instruments.lower().count('quiz')
+        gross_contents_covered += i.contents_covered.strip() + '\n'
+        if i.contents_covered.strip() != '': 
+            all_contents_covered = False
+    
+        
+    t = LongTable(datas, colWidths=[1.5 * cm, 2 * cm, 6 * cm, 3 * cm, 3 * cm, 3 * cm], repeatRows=1)
     
     t.setStyle(TableStyle(org.getTableStyle()))
     elements.append(t)
+    elements.append(Spacer(1, 0.5 * cm))
+    
+    # lower metadata
+    metainfo = [[Paragraph('<b>Number of Assignments</b>', styleN), str(num_assignments)],
+                 [Paragraph('<b>Number of Quizzes', styleN), str(num_quizzes)],
+                ]
+    t1 = LongTable(metainfo, colWidths=[6 * cm, 12 * cm])
+    t1.setStyle(TableStyle())
+    elements.append(t1)
+    elements.append(Spacer(1, 0.5 * cm))
+    
+    # elements.append(Spacer(1, 0.5 * cm))
+    if all_contents_covered:
+         is_covered_yes = '\u2713'
+         is_covered_no = 'x'
+    else: 
+         is_covered_yes = 'x'
+         is_covered_no = '\u2713'
+    gross_contents_covered = 'NA' if all_contents_covered == '' else gross_contents_covered 
+    metainfo = [ [is_covered_yes, 'All contents planned for this period were covered.'],
+                 [is_covered_no, 'Some contens planned for this period were not covered. Details below:'],
+                 ['', ''],
+                 [Paragraph(clean_string(gross_contents_covered), styleN), '']
+                ]
+    metainfo_tablestyle = [('SPAN', (0, 2), (1, 2)),
+                           ('BOX', (0, 3), (1, 3), 0.25, colors.black)]
+    t1 = LongTable(metainfo, colWidths=[1 * cm, 16 * cm])
+    t1.setStyle(TableStyle(metainfo_tablestyle))
+    elements.append(t1)    
+    
+
+    
+    
+    # finalize document 
     doc.build(elements)
     
     

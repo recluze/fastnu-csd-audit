@@ -1,4 +1,6 @@
 from reportlab.platypus import BaseDocTemplate
+from reportlab.lib.pagesizes import inch
+
 
 
 class FooterDocTemplate(BaseDocTemplate):
@@ -9,3 +11,6 @@ class FooterDocTemplate(BaseDocTemplate):
         self.canv.drawString(100, 20, u"%s" % (self.canv.getPageNumber(),))
         self.canv.endForm()
         BaseDocTemplate._endBuild(self)
+        
+        
+   
