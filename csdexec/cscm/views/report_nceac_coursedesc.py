@@ -114,7 +114,10 @@ def report_nceac_courselog_pdf(request, course_name):
 
     # =================== TABLE DATA 
     c = course_name 
-    co = CourseOutline.objects.filter(course=c)[0] # one-to-one relation 
+    try:
+        co = CourseOutline.objects.filter(course=c)[0] # one-to-one relation
+    except Exception, err:
+        raise RuntimeError("Course outlines not defined for " + str(course_name)) 
 
     datas = []
     topics_covered_details = get_formatted_course_outline(c, co)
