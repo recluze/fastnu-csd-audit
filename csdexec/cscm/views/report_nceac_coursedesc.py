@@ -19,7 +19,7 @@ from cscm.helpers.functions import *
 
 # models 
 from cscm.models import CourseLogEntry
-from cscm.models import Course, CourseOutline
+from cscm.models import Course, CourseOutline, WeekPlan
 
 # Forms imports 
 from django.core.context_processors import csrf
@@ -108,32 +108,34 @@ def report_nceac_courselog_pdf(request, course_name):
     
     elements.append(Spacer(1, 0.5 * cm))
     elements.append(Paragraph('A. COURSE DESCRIPTION', styleH))
-    
+    elements.append(Paragraph('(Fill out the following table for each course in your computer science curriculum. A filled out form should not be more than 2-3 pages.', styleN))
+    elements.append(Spacer(1, 0.5 * cm))
+
+
     # =================== TABLE DATA 
     c = course_name 
     co = CourseOutline.objects.filter(course=c)[0] # one-to-one relation 
 
     datas = []
-    topics_covered_details = 'TO BE DEFINED USING A FUNCTION'
+    topics_covered_details = get_formatted_course_outline(c, co)
     course_info = [
-                   ['Course Code' , c.course_code] ,
-                   ['Course Title' , c.course_name],
-                   ['Prerequisites by Course(s) and Topics', c.pre_reqs],
-                   ['Assessment Instruments with Weights (homework, quizzes, midterms, final, programming assignments, lab work etc.)', c.grade_distribution],
-                   ['Course Coordinator' , c.instructor.name],
-                   ['URL (if any)' , c.course_url],
-                   ['Current Catalog Description' , '?'],
-                   ['Textbook (or laboratory manual for laboratory courses)' , co.text_books],
-                   ['Reference Material' , co.recommended_books],
-                   ['Course Goals' , co.objectives],
-                   ['Topics Covered in the Course with Number of lectures on Each Topic (assume 15 week instruction and one-hour lectures)', topics_covered_details],
-                   ['Laboratory Projects/Experiments Done in the Course', c.lab_projects],
-                   ['Programming Assignments Done in the Course', c.prog_assignments],
+                   ['<b>Course Code</b>' , c.course_code] ,
+                   ['<b>Course Title</b>' , c.course_name],
+                   ['<b>Prerequisites by Course(s) and Topics</b>', c.pre_reqs],
+                   ['<b>Assessment Instruments with Weights</b> (homework, quizzes, midterms, final, programming assignments, lab work etc.)', c.grade_distribution],
+                   ['<b>Course Coordinator</b>' , c.instructor.name],
+                   ['<b>URL</b> (if any)' , c.course_url],
+                   ['<b>Current Catalog Description</b>' , '?'],
+                   ['<b>Textbook</b> (or laboratory manual for laboratory courses)' , co.text_books],
+                   ['<b>Reference Material</b>' , co.recommended_books],
+                   ['<b>Course Goals</b>' , co.objectives],
+                   ['<b>Topics Covered in the Course with Number of lectures on Each Topic</b>(assume 15 week instruction and one-hour lectures)', topics_covered_details],
+                   ['<b>Laboratory Projects/Experiments Done in the Course</b>', c.lab_projects],
+                   ['<b>Programming Assignments Done in the Course</b>', c.prog_assignments],
                 ]
 
     for k in course_info: 
-        headpara = Paragraph(k[0], styleB)
-        
+        headpara = Paragraph(k[0], styleN)
         datas.append([headpara , Paragraph(clean_string(k[1]), styleN)])
 
     t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
@@ -201,4 +203,12 @@ def report_nceac_courselog_pdf(request, course_name):
 
 
 
+def get_formatted_course_outline(c, co):
+    formatted_outline = ""
+    credits = c.credits
+    wp = WeekPlan.objects.filter(course_outline=co)
+    for w in wp: 
+        formatted_outline += "<b>Week No. " + str(w.week_no) + " - (" + str(credits) + " hours) </b><br />"
+        formatted_outline += "    " + clean_string(w.topics) + " <br />"
     
+    return formatted_outline
