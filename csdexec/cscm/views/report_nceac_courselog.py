@@ -14,6 +14,8 @@ from cscm.views.FooterDocTemplate import FooterDocTemplate
 
 import datetime 
 from nceac_styles import *
+from cscm.helpers.loadconfigs import get_config
+from cscm.helpers.functions import * 
 
 # models 
 
@@ -87,9 +89,9 @@ def report_nceac_courselog_pdf(request, course_name):
     
     # title page 
     inst_name_head = Paragraph('Name of the Institution', styleB)
-    inst_name = Paragraph('FAST National University of Computer and Emerging Sciences', styleN)
+    inst_name = Paragraph(get_config('inst_name'), styleN)
     dept_name_head = Paragraph('Department', styleB)
-    dept_name = Paragraph('Department of Computer Science', styleN)
+    dept_name = Paragraph(get_config('dept_name'), styleN)
     
     metainfo_tablestyle = [
                     # ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),

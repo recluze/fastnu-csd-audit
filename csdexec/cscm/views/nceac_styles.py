@@ -1,6 +1,6 @@
 from reportlab.lib.pagesizes import letter, A4, cm
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, Paragraph, LongTable, TableStyle
+from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, Paragraph, LongTable, TableStyle, Spacer
 from reportlab.lib import colors
 
 import datetime 
@@ -23,12 +23,12 @@ class Nceac:
             
             
             canvas.setFontSize(18) #choose your font type and font size
-            canvas.drawString(titleoffset, height - 40, "National Computer Education Accredication Council")
+            canvas.drawString(titleoffset, height - 40, "National Computer Education Accreditation Council")
             canvas.drawString(titleoffset, height - 60, "NCEAC")
             
             
             canvas.setFontSize(10) #choose your font type and font size
-            canvas.drawString(width - 130, height - 100, doccode)
+            canvas.drawString((width - 80) - (len(doccode) * 5), height - 100, doccode)
            
             
             #    P = Paragraph(str(now), styleN)
@@ -58,6 +58,9 @@ class Nceac:
         styleSmaller.fontSize = 8
         styleB.fontName = 'Helvetica-Bold'
         styleH = styles['Heading1']
+        styleH.leading = 24
+        styleH.fontSize = 12
+        
         return styleN, styleB, styleH, styleSmaller 
         
     def getFrame(self, doc):

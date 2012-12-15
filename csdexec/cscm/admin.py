@@ -42,19 +42,6 @@ class CourseAdmin(admin.ModelAdmin):
     
 admin.site.register(Course, CourseAdmin)
 
-#    course_url = models.CharField('Course URL', max_length=256, blank=True)
-#    lab_projects = models.TextField('Laboratory Projects/Experiments', blank=True)
-#    prog_assignments = models.TextField('Programming Assignments', blank=True)
-#    class_time_spent_theory = models.CharField(max_length=50, blank=True) 
-#    class_time_spent_analysis = models.CharField(max_length=50, blank=True)
-#    class_time_spent_design = models.CharField(max_length=50, blank=True)
-#    class_time_spent_ethics = models.CharField(max_length=50, blank=True)
-#    communciation_details_num_reports = models.CharField(help_text='Oral communication number of reports', max_length=20, blank=True)
-#    communciation_details_pages = models.CharField(help_text='Oral communication number of pages per report', max_length=20, blank=True)
-#    communciation_details_num_pres = models.CharField(help_text='Oral communication number of presentations', max_length=20, blank=True)
-#    communciation_details_num_mins = models.CharField(help_text='Oral communication minutes per presentation', max_length=20, blank=True)
-
-
 
 class CourseOutlineAdmin(admin.ModelAdmin):
     # fields = ['instructor', 'course_name', 'credits', 'year']

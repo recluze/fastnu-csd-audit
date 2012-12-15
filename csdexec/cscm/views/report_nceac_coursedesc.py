@@ -1,0 +1,204 @@
+# required for PDF generation 
+from __future__ import unicode_literals
+
+from io import BytesIO
+
+from reportlab.lib.pagesizes import letter, A4, cm
+from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate
+from reportlab.platypus.flowables import PageBreak 
+from reportlab.lib import colors
+
+from django.http import HttpResponse 
+
+from cscm.views.FooterDocTemplate import FooterDocTemplate
+
+import datetime 
+from nceac_styles import *
+from cscm.helpers.loadconfigs import get_config
+from cscm.helpers.functions import * 
+
+# models 
+from cscm.models import CourseLogEntry
+from cscm.models import Course, CourseOutline
+
+# Forms imports 
+from django.core.context_processors import csrf
+from django.http import HttpResponse
+from django.shortcuts import render_to_response
+from django import forms 
+from django.template import RequestContext
+  
+# =============================================================================================
+
+def report_nceac_coursedesc(request):
+    c = RequestContext(request)  
+    c.update(csrf(request))
+    
+    # if 'course_name' in request.GET and request.GET['course_name']:
+    if request.method == 'POST':  
+        # form submitted 
+        form = NceacCourseLogForm(request.POST)
+        form.is_valid()
+        course_name = form.cleaned_data['course_name']
+        course_name = course_name[0]
+        inner_response = report_nceac_courselog_pdf(request, course_name)
+        http_response = HttpResponse(inner_response, c)  
+        filename = "coursedesc_" + str(course_name.course_code) + "-" + str(course_name.semester) + str(course_name.year) + ".pdf"
+        http_response['Content-Disposition'] = 'attachment;filename="' + filename + '"'
+        return http_response  
+        
+    else:  
+        # form not yet submitted ... display it 
+        form = NceacCourseLogForm()
+        return render_to_response('nceac_courselog.html' , {
+                'form': form
+                }, c)
+         
+
+class NceacCourseLogForm(forms.Form):
+    TEMP = (
+            (1, "Course 1"),
+            (2, "Course 2")
+            )
+    # course_name = forms.ChoiceField(choices=TEMP)
+    course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+    pass
+
+
+
+
+# ============= PDF GEN 
+
+def report_nceac_courselog_pdf(request, course_name):
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="somefile.pdf"' 
+    
+    buffer = BytesIO() 
+    
+    org = Nceac()
+    styleN, styleB, styleH, styleSmaller = org.getTextStyles()
+    doc = FooterDocTemplate(buffer, pagesize=A4)
+    frame = org.getFrame(doc)
+    template = PageTemplate(id='test', frames=frame, onPage=org.get_header_footer(doccode="NCEAC.FORM.001-C"))
+    doc.addPageTemplates([template])
+    width, height = A4
+    frame_width = width - ((doc.leftMargin - 20) * 2)
+    
+    # Our main content holder 
+    
+    elements = []
+
+    
+    # title page 
+    inst_name_head = Paragraph('INSTITUTION', styleB)
+    inst_name = Paragraph(get_config('inst_name'), styleN)
+    dept_name_head = Paragraph('PROGRAM(S) TO BE EVALUATED', styleB)
+    dept_name = Paragraph("BS (CS)", styleN)
+    
+    metainfo_tablestyle = [
+                    # ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                    ('LINEBELOW', (1, 0), (1, -1), 0.25, colors.black),
+                    # ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ]
+    metainfo = [[inst_name_head, inst_name], [dept_name_head, dept_name]]
+    t1 = LongTable(metainfo, colWidths=[3 * cm, frame_width - (3 * cm)])
+    t1.setStyle(TableStyle(metainfo_tablestyle))
+    elements.append(t1)
+    
+    elements.append(Spacer(1, 0.5 * cm))
+    elements.append(Paragraph('A. COURSE DESCRIPTION', styleH))
+    
+    # =================== TABLE DATA 
+    c = course_name 
+    co = CourseOutline.objects.filter(course=c)[0] # one-to-one relation 
+
+    datas = []
+    topics_covered_details = 'TO BE DEFINED USING A FUNCTION'
+    course_info = [
+                   ['Course Code' , c.course_code] ,
+                   ['Course Title' , c.course_name],
+                   ['Prerequisites by Course(s) and Topics', c.pre_reqs],
+                   ['Assessment Instruments with Weights (homework, quizzes, midterms, final, programming assignments, lab work etc.)', c.grade_distribution],
+                   ['Course Coordinator' , c.instructor.name],
+                   ['URL (if any)' , c.course_url],
+                   ['Current Catalog Description' , '?'],
+                   ['Textbook (or laboratory manual for laboratory courses)' , co.text_books],
+                   ['Reference Material' , co.recommended_books],
+                   ['Course Goals' , co.objectives],
+                   ['Topics Covered in the Course with Number of lectures on Each Topic (assume 15 week instruction and one-hour lectures)', topics_covered_details],
+                   ['Laboratory Projects/Experiments Done in the Course', c.lab_projects],
+                   ['Programming Assignments Done in the Course', c.prog_assignments],
+                ]
+
+    for k in course_info: 
+        headpara = Paragraph(k[0], styleB)
+        
+        datas.append([headpara , Paragraph(clean_string(k[1]), styleN)])
+
+    t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
+    
+    t.setStyle(TableStyle(org.getTableStyle()))
+    elements.append(t)
+         
+    # class time spent details
+      
+    headpara = Paragraph('Class Time Spent on (in credit hours)', styleB)  
+    hp_theory = Paragraph('Theory', styleB)
+    hp_analysis = Paragraph('Problem Analysis', styleB)
+    hp_design = Paragraph('Design', styleB)
+    hp_ethics = Paragraph('Social and Ethical Issues', styleB)
+    
+    det_headpara = Paragraph(' ', styleB)  
+    val_theory = Paragraph(c.class_time_spent_theory, styleN)
+    val_analysis = Paragraph(c.class_time_spent_analysis, styleN)
+    val_design = Paragraph(c.class_time_spent_design, styleN)
+    val_ethics = Paragraph(c.class_time_spent_ethics, styleN)
+    
+    datas = [[headpara, hp_theory, hp_analysis, hp_design, hp_ethics]]
+    datas.append([det_headpara, val_theory, val_analysis, val_design, val_ethics])
+    t = LongTable(datas, colWidths=[5 * cm, 2 * cm, 3 * cm, 3 * cm, 4 * cm])
+    
+    t.setStyle(TableStyle([
+                           ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                           ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                           ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                           ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+                           ('SPAN', (0, 0), (0, 1)),
+                           # ('SPAN', (2, 0), (2, -1)),    
+                           ]))
+    elements.append(t)
+    val_reports = c.communciation_details_num_reports
+    val_pages = c.communciation_details_pages
+    val_pres = c.communciation_details_num_pres
+    val_mins = c.communciation_details_num_mins
+
+    head_comm = Paragraph('Oral and Written Communication', styleB)
+    val_comm = Paragraph("Every student is required to submit at least <u>" + str(val_reports) + 
+                            "</u> written reports of typically <u>" + str(val_pages) + "</u> pages and to make <u>" + str(val_pres) 
+                             + "</u> oral presentations of typically <u>" + str(val_mins) + "</u> minute's duration. Include only material that is graded for " 
+                            + "grammar, spelling, style, and so forth, as well as for technical content, completeness and accuracy." , styleN)
+    datas = [[head_comm, val_comm]]
+    t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
+    
+    t.setStyle(TableStyle([
+                           ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                           ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                           ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                           ]))
+    elements.append(t)
+    
+        
+    doc.build(elements)
+    
+    
+    # OUTPUT FILE 
+    # doc.save()
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
+
+
+
+    

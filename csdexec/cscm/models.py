@@ -76,8 +76,8 @@ class WeekPlan(models.Model):
     WEEK_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 17)])
 
     course_outline = models.ForeignKey(CourseOutline)
-    week_no = models.CharField(max_length=2, choices=WEEK_NUM_CHOICES)
-    topics = models.TextField(default='Please insert topics here')
+    week_no = models.CharField(max_length=2)
+    topics = models.TextField(default='Please insert topics here', blank=True)
     
     def __unicode__(self): 
         fields = ['Week', self.week_no, str(self.course_outline)]
@@ -99,6 +99,9 @@ class CourseLogEntry(models.Model):
     duration = models.CharField(max_length=5, default=1.5)
     topics_covered = models.TextField()
     evaluation_instruments = models.TextField(blank=True)
+    reading_materials = models.TextField(blank=True)
+    other_activities = models.TextField(blank=True)
+    contents_covered = models.TextField('Contents Covered?', blank=True, help_text='Leave blank for Yes; enter reason if not.')
         
     def __unicode__(self): 
         fields = ['Lecture ', self.lecture_no, str(self.course)]
