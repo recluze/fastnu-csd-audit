@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     url(r'^reports/nceac/courselog', report_nceac_courselog), 
     url(r'^reports/qec/courselog', report_qec_courselog), 
     url(r'^reports/nceac/coursedesc', report_nceac_coursedesc),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
 
 

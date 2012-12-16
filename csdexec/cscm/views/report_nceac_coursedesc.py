@@ -28,9 +28,23 @@ from django.shortcuts import render_to_response
 from django import forms 
 from django.template import RequestContext
   
+from django.contrib.auth.decorators import login_required 
 # =============================================================================================
 
+@login_required
 def report_nceac_coursedesc(request):
+    class NceacCourseLogForm(forms.Form):
+        TEMP = (
+                (1, "Course 1"),
+                (2, "Course 2")
+                )
+        # course_name = forms.ChoiceField(choices=TEMP)
+        if request.user.is_superuser: 
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+        else: 
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
+            
+            
     c = RequestContext(request)  
     c.update(csrf(request))
     
@@ -48,6 +62,7 @@ def report_nceac_coursedesc(request):
         return http_response  
         
     else:  
+
         # form not yet submitted ... display it 
         form = NceacCourseLogForm()
         return render_to_response('nceac_courselog.html' , {
@@ -55,14 +70,7 @@ def report_nceac_coursedesc(request):
                 }, c)
          
 
-class NceacCourseLogForm(forms.Form):
-    TEMP = (
-            (1, "Course 1"),
-            (2, "Course 2")
-            )
-    # course_name = forms.ChoiceField(choices=TEMP)
-    course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
-    pass
+    
 
 
 

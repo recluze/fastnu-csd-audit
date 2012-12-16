@@ -29,9 +29,21 @@ from django.shortcuts import render_to_response
 from django import forms 
 from django.template import RequestContext
   
+from django.contrib.auth.decorators import login_required 
 # =============================================================================================
-
+@login_required 
 def report_nceac_courselog(request):
+    class NceacCourseLogForm(forms.Form):
+        TEMP = (
+                (1, "Course 1"),
+                (2, "Course 2")
+                )
+        if request.user.is_superuser: 
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+        else: 
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
+        
+    
     c = RequestContext(request)  
     c.update(csrf(request))
     
@@ -49,6 +61,7 @@ def report_nceac_courselog(request):
         return http_response  
         
     else:  
+
         # form not yet submitted ... display it 
         form = NceacCourseLogForm()
         return render_to_response('nceac_courselog.html' , {
@@ -56,14 +69,6 @@ def report_nceac_courselog(request):
                 }, c)
          
 
-class NceacCourseLogForm(forms.Form):
-    TEMP = (
-            (1, "Course 1"),
-            (2, "Course 2")
-            )
-    # course_name = forms.ChoiceField(choices=TEMP)
-    course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
-    pass
 
 
 
@@ -128,10 +133,10 @@ def report_nceac_courselog_pdf(request, course_name):
     #    )
     for i in courselogentry_data: 
         # entered_logs += 1
-        l_date = Paragraph(str(i.lecture_date.strftime("%d-%m, %Y")).replace('\n', '<br />'), styleSmaller)
-        l_duration = Paragraph(str(i.duration).replace('\n', '<br />'), styleSmaller)
-        l_topics_covered = Paragraph(i.topics_covered.replace('\n', '<br />').replace('&', '&amp;'), styleSmaller)
-        l_eval = Paragraph(str(i.evaluation_instruments).replace('\n', '<br />'), styleSmaller)
+        l_date = Paragraph(str(i.lecture_date.strftime("%d-%m, %Y")), styleSmaller)
+        l_duration = Paragraph(str(i.duration), styleSmaller)
+        l_topics_covered = Paragraph(clean_string(i.topics_covered), styleSmaller)
+        l_eval = Paragraph(clean_string(i.evaluation_instruments), styleSmaller)
         
         datas.append([l_date, l_duration, l_topics_covered, l_eval, emptypara])
     

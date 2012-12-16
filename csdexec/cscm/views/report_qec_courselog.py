@@ -32,9 +32,25 @@ from django import forms
 from django.template import RequestContext
 from wx.lib.sized_controls import halign
   
+  
+from django.contrib.auth.decorators import login_required    
 # =============================================================================================
 
+@login_required
 def report_qec_courselog(request):
+    class QecCourseLogForm(forms.Form):
+        WEEKRANGE = (
+                (1, "Weeks 1 to 5"),
+                (2, "Weeks 6 to 10"),
+                (3, "Weeks 11 to 15"),
+                )
+        # course_name = forms.ChoiceField(choices=TEMP)
+        if request.user.is_superuser: 
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+        else: 
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
+        week_range = forms.MultipleChoiceField(choices=WEEKRANGE)
+    
     c = RequestContext(request)  
     c.update(csrf(request))
     
@@ -63,6 +79,8 @@ def report_qec_courselog(request):
         return http_response  
         
     else:  
+
+
         # form not yet submitted ... display it 
         form = QecCourseLogForm()
         return render_to_response('qec_courselog.html' , {
@@ -70,16 +88,6 @@ def report_qec_courselog(request):
                 }, c)
          
 
-class QecCourseLogForm(forms.Form):
-    WEEKRANGE = (
-            (1, "Weeks 1 to 5"),
-            (2, "Weeks 6 to 10"),
-            (3, "Weeks 11 to 15"),
-            )
-    # course_name = forms.ChoiceField(choices=TEMP)
-    course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
-    week_range = forms.MultipleChoiceField(choices=WEEKRANGE)
-    pass
 
 
 
