@@ -18,9 +18,8 @@ class CourseOutlineInline(admin.StackedInline):
     
 # Instructor
 class InstructorAdmin(admin.ModelAdmin):
-    # fields = ['name', 'designation']
-    list_display = ('name', 'designation')
-    
+    # fields = ['name', 'designation', 'age', 'joining_date']
+    list_display = ('name', 'designation')    
     
 admin.site.register(Instructor, InstructorAdmin)
 
@@ -31,14 +30,30 @@ class CourseAdmin(admin.ModelAdmin):
     fieldsets = [
                  ('Couse Basics', {'fields' : (('course_code', 'course_name', 'instructor'),
                                                 ('credits', 'year', 'batch', 'semester', 'course_type'),
-                                               ),}),
-                  ('Couse Policies', {'fields' : ('grade_distribution', 'pre_reqs', 'course_url', 'lab_projects', 'prog_assignments'),}),
+                                               ), }),
+                  ('Couse Policies', {'fields' : ('grade_distribution', 'pre_reqs', 'course_url', 'lab_projects', 'prog_assignments'), }),
                   ('Class Time Spent', {'fields' : ((('class_time_spent_theory', 'class_time_spent_analysis')), (('class_time_spent_design', 'class_time_spent_ethics')),)}),
                   ('Oral and Written Communication', {'fields' : ((('communciation_details_num_reports', 'communciation_details_pages')), (('communciation_details_num_pres', 'communciation_details_num_mins')),)}),
                 ]
     list_display = ('course_name', 'instructor', 'semester', 'year', 'credits')
     list_filter = ['instructor__name', 'year']
     inlines = [CourseOutlineInline, CourseLogEntryInline]
+    
+    # row-level permissions for courses. 
+    # source: http://www.ibm.com/developerworks/opensource/library/os-django-admin/index.html
+    def queryset(self, request):
+        qs = super(CourseAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs 
+        
+        # get instructor's "owner" 
+        return qs.filter(instructor__owner=request.user)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "instructor" and not request.user.is_superuser:
+            kwargs["queryset"] = Instructor.objects.filter(owner=request.user)
+            return db_field.formfield(**kwargs)
+        return super(CourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
 admin.site.register(Course, CourseAdmin)
 
@@ -48,6 +63,20 @@ class CourseOutlineAdmin(admin.ModelAdmin):
     list_filter = ['course__course_name', 'course__year']
     inlines = [WeekPlanInline]
     
+    def queryset(self, request):
+        qs = super(CourseOutlineAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs 
+        
+        # get instructor's "owner" 
+        return qs.filter(course__instructor__owner=request.user)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "course" and not request.user.is_superuser:
+            kwargs["queryset"] = Course.objects.filter(instructor__owner=request.user)
+            return db_field.formfield(**kwargs)
+        return super(CourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
 admin.site.register(CourseOutline, CourseOutlineAdmin)
 
 
@@ -55,6 +84,20 @@ class CourseLogEntryAdmin(admin.ModelAdmin):
     list_display = ['lecture_no', 'course']
     list_filter = ['course__course_name', 'lecture_date']
     date_hierarchy = 'lecture_date'
+
+    def queryset(self, request):
+        qs = super(CourseLogEntryAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs 
+        
+        # get instructor's "owner" 
+        return qs.filter(course__instructor__owner=request.user)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "course" and not request.user.is_superuser:
+            kwargs["queryset"] = Course.objects.filter(instructor__owner=request.user)
+            return db_field.formfield(**kwargs)
+        return super(CourseLogEntryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(CourseLogEntry, CourseLogEntryAdmin)
 

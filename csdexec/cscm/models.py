@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Instructor(models.Model):
@@ -13,7 +14,7 @@ class Instructor(models.Model):
     age = models.CharField(max_length=200, default=25)
     designation = models.CharField(max_length=1, choices=DESIGNATION_CHOICES)
     joining_date = models.DateField()
-    
+    owner = models.ForeignKey(User)
     def __unicode__(self): 
         return self.name 
     
