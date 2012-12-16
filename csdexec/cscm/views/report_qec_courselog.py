@@ -30,6 +30,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django import forms 
 from django.template import RequestContext
+from wx.lib.sized_controls import halign
   
 # =============================================================================================
 
@@ -172,10 +173,10 @@ def report_qec_courselog_pdf(request, course_name, week_range):
         if int(i.week_no) < start_week or int(i.week_no) > end_week: 
             continue 
         # entered_logs += 1
-        l_date = Paragraph(str(i.lecture_date.strftime("%d-%m, %Y")).replace('\n', '<br />'), styleSmaller)
-        l_duration = Paragraph(str(i.duration).replace('\n', '<br />'), styleSmaller)
-        l_topics_covered = Paragraph(i.topics_covered.replace('\n', '<br />').replace('&', '&amp;'), styleSmaller)
-        l_eval = Paragraph(str(i.evaluation_instruments).replace('\n', '<br />'), styleSmaller)
+        l_date = Paragraph(str(i.lecture_date.strftime("%d-%m, %Y")), styleSmaller)
+        l_duration = Paragraph(str(i.duration), styleSmaller)
+        l_topics_covered = Paragraph(clean_string(i.topics_covered), styleSmaller)
+        l_eval = Paragraph(clean_string(i.evaluation_instruments), styleSmaller)
         l_reading = Paragraph(clean_string(i.reading_materials), styleSmaller)
         emptypara = Paragraph(' ', styleSmaller)
         datas.append([l_date, l_duration, l_topics_covered, l_eval, l_reading, emptypara])
@@ -217,12 +218,22 @@ def report_qec_courselog_pdf(request, course_name, week_range):
                  [Paragraph(clean_string(gross_contents_covered), styleN), '']
                 ]
     metainfo_tablestyle = [('SPAN', (0, 2), (1, 2)),
-                           ('BOX', (0, 3), (1, 3), 0.25, colors.black)]
-    t1 = LongTable(metainfo, colWidths=[1 * cm, 16 * cm])
+                           ('BOX', (0, 3), (1, 3), 0.25, colors.black), 
+                           ('BOX', (0, 0), (0, 0), 0.25, colors.black),
+                           ('BOX', (0, 1), (0, 1), 0.25, colors.black)]
+    t1 = LongTable(metainfo, colWidths=[0.6 * cm, 16 * cm])
     t1.setStyle(TableStyle(metainfo_tablestyle))
     elements.append(t1)    
     
-
+    # signature area 
+    elements.append(Spacer(1, 1 * cm))
+    metainfo = [ [Paragraph('Date', styleB), datetime.datetime.now().strftime('%d-%B-%Y'),
+                 Paragraph('Signature', styleB), '', ''],
+                ]
+    metainfo_tablestyle = [('LINEBELOW', (3, 0), (3, 0), 0.25, colors.black)]
+    t1 = LongTable(metainfo, colWidths=[2 * cm, 4 * cm, 2 * cm , 4 * cm, 5 * cm])
+    t1.setStyle(TableStyle(metainfo_tablestyle))
+    elements.append(t1)    
     
     
     # finalize document 
