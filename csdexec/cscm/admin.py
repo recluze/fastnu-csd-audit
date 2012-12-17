@@ -1,5 +1,8 @@
 from cscm.models import Instructor, Course, CourseOutline, WeekPlan, CourseLogEntry
 from django.contrib import admin 
+from django.db import models
+from django import forms 
+
 
 # Inlines 
 class WeekPlanInline(admin.TabularInline):
@@ -10,7 +13,6 @@ class WeekPlanInline(admin.TabularInline):
 class CourseLogEntryInline(admin.TabularInline):
     model = CourseLogEntry
     extra = 3
-    
     
 class CourseOutlineInline(admin.StackedInline):
     model = CourseOutline

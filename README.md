@@ -15,6 +15,8 @@ tl.rename
 django-grappelli (https://django-grappelli.readthedocs.org/en/latest/quickstart.html)
 
 
+# Symbolic link for serving static files through apache
+fastnu-csd-audit/csdexec/media -> /usr/lib/python2.7/dist-packages/django/contrib/admin/media/
 
 
 # Apache Configuration Sample 

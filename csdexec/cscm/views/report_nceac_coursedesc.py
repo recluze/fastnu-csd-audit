@@ -132,14 +132,14 @@ def report_nceac_courselog_pdf(request, course_name):
     course_info = [
                    ['<b>Course Code</b>' , c.course_code] ,
                    ['<b>Course Title</b>' , c.course_name],
-                   ['<b>Prerequisites by Course(s) and Topics</b>', c.pre_reqs],
-                   ['<b>Assessment Instruments with Weights</b> (homework, quizzes, midterms, final, programming assignments, lab work etc.)', c.grade_distribution],
+                   ['<b>Prerequisites by Course(s) and Topics</b>', clean_string(c.pre_reqs, False)],
+                   ['<b>Assessment Instruments with Weights</b> (homework, quizzes, midterms, final, programming assignments, lab work etc.)', clean_string(c.grade_distribution, False)],
                    ['<b>Course Coordinator</b>' , c.instructor.name],
                    ['<b>URL</b> (if any)' , c.course_url],
                    ['<b>Current Catalog Description</b>' , '?'],
-                   ['<b>Textbook</b> (or laboratory manual for laboratory courses)' , co.text_books],
-                   ['<b>Reference Material</b>' , co.recommended_books],
-                   ['<b>Course Goals</b>' , co.objectives],
+                   ['<b>Textbook</b> (or laboratory manual for laboratory courses)' , clean_string(co.text_books, False)],
+                   ['<b>Reference Material</b>' , clean_string(co.recommended_books, False)],
+                   ['<b>Course Goals</b>' , clean_string(co.objectives)],
                    ['<b>Topics Covered in the Course with Number of lectures on Each Topic</b>(assume 15 week instruction and one-hour lectures)', topics_covered_details],
                    ['<b>Laboratory Projects/Experiments Done in the Course</b>', c.lab_projects],
                    ['<b>Programming Assignments Done in the Course</b>', c.prog_assignments],
@@ -147,7 +147,7 @@ def report_nceac_courselog_pdf(request, course_name):
 
     for k in course_info: 
         headpara = Paragraph(k[0], styleN)
-        datas.append([headpara , Paragraph(clean_string(k[1]), styleN)])
+        datas.append([headpara , Paragraph(k[1], styleN)])
 
     t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
     
