@@ -13,7 +13,7 @@ from django.http import HttpResponse
 from cscm.views.FooterDocTemplate import FooterDocTemplate
 
 import datetime 
-from nceac_styles import *
+from cscm.views.nceac_styles import *
 from cscm.helpers.loadconfigs import get_config
 from cscm.helpers.functions import * 
 

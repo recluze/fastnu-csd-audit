@@ -9,12 +9,13 @@ import copy
 
 class Nceac: 
 
-    def get_header_footer(self, doccode): 
+    def get_header_footer(self, doccode, pagesize=A4):
+        width, height = pagesize
+            
         def nceac_header_footer(canvas, doc):
             canvas.saveState()
             now = datetime.datetime.now()
-            
-            width, height = A4
+
             titleoffset = 100
             
         

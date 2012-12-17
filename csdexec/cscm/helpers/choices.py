@@ -1,8 +1,8 @@
 DESIGNATION_CHOICES = (
-                ('1', 'Lecturer'),
-                ('2', 'Assistant Professor'),
-                ('3', 'Associate Professor'),
-                ('4', 'Professor'),
+                ('Lecturer', 'Lecturer'),
+                ('Assistant Professor', 'Assistant Professor'),
+                ('Associate Professor', 'Associate Professor'),
+                ('Professor', 'Professor'),
                 )
 
 CREDITS_CHOICES = (

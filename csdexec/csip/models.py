@@ -8,7 +8,7 @@ from dateutil import relativedelta as rdelta
 
 
 class InstructorProfile(models.Model):
-    instructor = models.ForeignKey(Instructor)
+    instructor = models.OneToOneField(Instructor)
     date_of_birth = models.DateField(blank=True)
     department = models.CharField(max_length=100)
     
