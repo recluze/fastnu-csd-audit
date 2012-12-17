@@ -1,15 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from cscm.helpers.choices import DESIGNATION_CHOICES, SEMESTER_CHOICES, COURSE_TYPE_CHOICES
 
 
 class Instructor(models.Model):
-    DESIGNATION_CHOICES = (
-                ('1', 'Lecturer'),
-                ('2', 'Assistant Professor'),
-                ('3', 'Associate Professor'),
-                ('4', 'Professor'),
-                )
-    
     name = models.CharField(max_length=200)
     age = models.CharField(max_length=200, default=25)
     designation = models.CharField(max_length=1, choices=DESIGNATION_CHOICES)
@@ -21,15 +15,7 @@ class Instructor(models.Model):
     
 # Course  Stuff  --------------------------------------------------    
 class Course(models.Model):
-    CREDITS_CHOICES = (
-                       (1, '1'), (2, '2'), (3, '3'), (4, '4')
-                       ) 
-    SEMESTER_CHOICES = (
-                        ('Fall', 'Fall'), ('Spring', 'Spring'), ('Summer', 'Summer')
-                        )
-    COURSE_TYPE_CHOICES = (
-                       ('Core', 'Core'), ('Elective', 'Elective'), ('No Credit', 'No Credit')
-                       ) 
+    
     course_code = models.CharField(max_length=10, default='CS')
     instructor = models.ForeignKey(Instructor)
     course_name = models.CharField(max_length=200)
