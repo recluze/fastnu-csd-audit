@@ -113,27 +113,68 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     # elements.append(PageBreak())
     
     # Education 
-    id = i.instructoreducation_set.all().order_by('-year')
-    data = [[Paragraph('Degrees', styleB), 
-             Paragraph('Degree', styleB), 
+    ieds = i.instructoreducation_set.all().order_by('-year')
+    data = [[Paragraph('Degrees', styleB),
+             Paragraph('Degree', styleB),
              Paragraph('Field', styleB),
              Paragraph('Institution', styleB),
              Paragraph('Date', styleB),
             ]]
-    for ide in id: 
-        data.append(['', 
-             Paragraph(ide.degree, styleN), 
-             Paragraph(ide.field, styleN),
-             Paragraph(ide.university, styleN),
-             Paragraph(ide.year, styleN),
+    for ied in ieds: 
+        data.append(['',
+             Paragraph(ied.degree, styleN),
+             Paragraph(ied.field, styleN),
+             Paragraph(ied.university, styleN),
+             Paragraph(ied.year, styleN),
             ])
     ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
             ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('SPAN', (0,0), (0,-1))
+            ('SPAN', (0, 0), (0, -1))
             ]    
     elements.append(make_table(data, widths=[6 * cm, 4.5 * cm, 4.5 * cm, 7 * cm, 4 * cm], style=ts))    
     
+     
+    # events 
+    ievs = i.instructoreventparticpation_set.all().order_by('-id')
+    counter = 1
+    cat_header = Paragraph('Conferences, workshops, and professional development programs participated during the past five years', styleB)
+    data = []
+    for iev in ievs: 
+        iev_string = str(counter) + '. ' + iev.title + '. Role: ' + iev.role + ' (' + str(iev.duration) + ' at ' + str(iev.venue) + ')'  
+        data.append([cat_header,
+             Paragraph(iev_string, styleN),
+             Paragraph(str(iev.start_date.year), styleN),
+            ])
+        cat_header = ''
+        counter += 1
+    ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('SPAN', (0, 0), (0, -1))
+            ]    
+    elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))    
+    
+    # Publications 
+    ipbs = i.instructorpublication_set.all().order_by('-id')
+    counter = 1
+    cat_header = Paragraph('Principal publications during the last five years (give in standard bibliogrpahic format)', styleB)
+    data = []
+    for ipb in ipbs: 
+        pub_string = str(counter) + '. ' + str(ipb)
+        data.append([cat_header,
+             Paragraph(pub_string, styleN),
+             Paragraph('date', styleN),
+            ])
+        cat_header = ''
+        counter += 1
+    ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('SPAN', (0, 0), (0, -1))
+            ]    
+    elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))    
+
 
     
     doc.build(elements)

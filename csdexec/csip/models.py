@@ -19,8 +19,8 @@ class InstructorProfile(models.Model):
     pay_grade = models.CharField(max_length=50, blank=True)
     pay_step = models.CharField(max_length=50, blank=True)
     gross_pay = models.CharField(max_length=50, blank=True)
-    awards = models.TextField('Academic Awards/Distinctions',blank=True)
-    memberships = models.TextField('Professional Memberships',blank=True, help_text='e.g. editor of journal, academic bodies')
+    awards = models.TextField('Academic Awards/Distinctions', blank=True)
+    memberships = models.TextField('Professional Memberships', blank=True, help_text='e.g. editor of journal, academic bodies')
     
     
     def __unicode__(self): 
@@ -47,10 +47,23 @@ class InstructorEducation(models.Model):
     
 class InstructorPublication(models.Model):
     instructor = models.ForeignKey(Instructor)
-    pub_bib = models.TextField('BibTex', blank=True)
-    pub_type = models.CharField(max_length=10, choices=PUB_TYPE_CHOICES)
+    pub_bib = models.TextField('BibTex', blank=True, help_text='DEPRECATED. LEAVE BLANK!')
+    author_list = models.CharField('List of Authors', max_length=100, help_text='In "first name last name" format. Separate multiple authors with a comma.')
+    title = models.CharField(max_length=300, blank=True, help_text='In case of book, leave this field blank.')
+    journal = models.CharField('Journal/Book/Conference', max_length=100, blank=True)
+    volume = models.CharField(max_length=5, blank=True)
+    number = models.CharField(max_length=5, blank=True)
+    publisher = models.CharField(max_length=100, blank=True)
+    pub_date = models.DateField('Publication Date', blank=True)
+    hec_cat = models.CharField('HEC Category', max_length=2, blank=True, help_text='In case of local journals')
+    
+    pub_type = models.CharField('Type', max_length=10, choices=PUB_TYPE_CHOICES)
     impact_factor = models.CharField(max_length=10, blank=True)
     status = models.CharField(max_length=10, choices=PUB_STATUS_CHOICES, blank=True)
+    
+    
+    def pub_string(self):
+        return get_pub_string(self.pub_bib)
     
     def __unicode__(self): 
         return get_pub_string(self.pub_bib)
