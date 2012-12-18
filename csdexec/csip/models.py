@@ -19,6 +19,7 @@ class InstructorProfile(models.Model):
     pay_grade = models.CharField(max_length=50, blank=True)
     pay_step = models.CharField(max_length=50, blank=True)
     gross_pay = models.CharField(max_length=50, blank=True)
+    percent_time_teaching = models.CharField(max_length=4, blank=True, help_text='Percentage of time given to teaching in organization. Please do not suffix the \'%\' symbol ')
     awards = models.TextField('Academic Awards/Distinctions', blank=True)
     memberships = models.TextField('Professional Memberships', blank=True, help_text='e.g. editor of journal, academic bodies')
     

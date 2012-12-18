@@ -7,6 +7,7 @@ from reportlab.lib.pagesizes import letter, A4, cm
 from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate
 from reportlab.platypus.flowables import PageBreak 
 from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
 
 from django.http import HttpResponse 
 
@@ -31,6 +32,8 @@ from django import forms
 from django.template import RequestContext
   
 from django.contrib.auth.decorators import login_required 
+
+import copy 
 # =============================================================================================
 @login_required 
 def report_nceac_faculty_profile(request):
@@ -85,6 +88,9 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     
     org = Nceac()
     styleN, styleB, styleH, styleSmaller = org.getTextStyles()
+    styleBC = copy.copy(styleB)
+    styleBC.alignment = TA_CENTER 
+    
     width, height = A4
     doc = FooterDocTemplate(buffer, pagesize=(height, width))
     
@@ -98,6 +104,7 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     
     i = instructor 
     ip = i.instructorprofile
+    percent_time_teaching = ip.percent_time_teaching
     
     # title page 
     data = [[Paragraph('Name', styleB), i.name],
@@ -136,7 +143,7 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     
      
     # events 
-    ievs = i.instructoreventparticpation_set.all().order_by('-id')
+    ievs = i.instructoreventparticpation_set.all().order_by('-start_date')
     counter = 1
     cat_header = Paragraph('Conferences, workshops, and professional development programs participated during the past five years', styleB)
     data = []
@@ -154,6 +161,27 @@ def report_nceac_faculty_profile_pdf(request, instructor):
             ('SPAN', (0, 0), (0, -1))
             ]    
     elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))    
+    
+    # Consultancies 
+    icons = i.instructorconsultancy_set.all().order_by('-date')
+    counter = 1
+    cat_header = Paragraph('Consulting activities during the last five years', styleB)
+    data = []
+    for icon in icons: 
+        icon_string = str(counter) + '. <b>' + icon.organization + '</b>. ' + icon.description   
+        data.append([cat_header,
+             Paragraph(icon_string, styleN),
+             Paragraph(str(icon.date.year), styleN),
+            ])
+        cat_header = ''
+        counter += 1
+    ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('SPAN', (0, 0), (0, -1))
+            ]    
+    elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))
+    
     
     # Publications 
     ipbs = i.instructorpublication_set.all().order_by('-id')
@@ -173,10 +201,42 @@ def report_nceac_faculty_profile_pdf(request, instructor):
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('SPAN', (0, 0), (0, -1))
             ]    
-    elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))    
+    elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts)) 
+
+    # courses during last two years 
+    ics = i.course_set.all().order_by('-year')
+    data = [[Paragraph('Courses taught during this and last academic year', styleB),
+             Paragraph('Year', styleB),
+             Paragraph('Semester', styleB),
+             Paragraph('Course Code', styleB),
+             Paragraph('Course Title', styleB),
+            ]]
+    for ic in ics: 
+        data.append(['',
+                     str(ic.year),
+                     str(ic.semester),
+                     str(ic.course_code),
+                     str(ic.course_name)
+                     ])
+    ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('SPAN', (0, 0), (0, -1))
+            ]    
+    elements.append(make_table(data, widths=[6 * cm, 3 * cm, 3 * cm, 3 * cm, 11 * cm], style=ts)) 
 
 
-    
+    # Percentage of time given to teaching
+    data = [[Paragraph('State percentage of your full-time work dedicated to teaching in the computing program under evaluation', styleB)
+             , str(percent_time_teaching) + '%']]
+    ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]
+    elements.append(make_table(data, widths=[6 * cm, 20 * cm], style=ts))
+
+    # END OF REPORT. NOW BUILD 
+
     doc.build(elements)
     # OUTPUT FILE 
     # doc.save()
