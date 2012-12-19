@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from cscm.views.FooterDocTemplate import FooterDocTemplate
 
 import datetime 
-from cscm.views.nceac_styles import *
+from cscm.views.internal_styles import *
 from cscm.helpers.loadconfigs import get_config
 from cscm.helpers.functions import * 
 
@@ -36,8 +36,8 @@ from django.contrib.auth.decorators import login_required
 import copy 
 # =============================================================================================
 @login_required 
-def report_nceac_faculty_profile(request):
-    class NceacFacultyProfileForm(forms.Form):
+def report_internal_faculty_cv(request):
+    class InternalFacultyCVForm(forms.Form):
         if request.user.is_superuser: 
             instructor = forms.ModelMultipleChoiceField(queryset=Instructor.objects.all())
         else: 
@@ -50,22 +50,22 @@ def report_nceac_faculty_profile(request):
     # if 'course_name' in request.GET and request.GET['course_name']:
     if request.method == 'POST':  
         # form submitted 
-        form = NceacFacultyProfileForm(request.POST)
+        form = InternalFacultyCVForm(request.POST)
         form.is_valid()
         instructor = form.cleaned_data['instructor']
         instructor = instructor[0]
-        inner_response = report_nceac_faculty_profile_pdf(request, instructor)
+        inner_response = report_internal_faculty_cv_pdf(request, instructor)
         http_response = HttpResponse(inner_response, c)  
         escaped_name = str(instructor.name).replace(' ', '_')
         this_year = datetime.datetime.now().strftime("%Y")
-        filename = "faculty_profile_" + escaped_name + "-" + this_year + ".pdf"
+        filename = "faculty_cv_" + escaped_name + "-" + this_year + ".pdf"
         http_response['Content-Disposition'] = 'attachment;filename="' + filename + '"'
         return http_response  
         
     else:  
         # form not yet submitted ... display it 
-        form = NceacFacultyProfileForm()
-        return render_to_response('nceac_faculty_profile.html' , {
+        form = InternalFacultyCVForm()
+        return render_to_response('internal_faculty_cv.html' , {
                 'form': form
                 }, c)
          
@@ -76,7 +76,7 @@ def report_nceac_faculty_profile(request):
 
 # ============= PDF GEN 
 
-def report_nceac_faculty_profile_pdf(request, instructor):
+def report_internal_faculty_cv_pdf(request, instructor):
     def make_table(data, widths, style=[]):
         table = LongTable(data, colWidths=widths)
         table.setStyle(TableStyle(style))
@@ -86,7 +86,7 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     
     buffer = BytesIO() 
     
-    org = Nceac()
+    org = Internal()
     styleN, styleB, styleH, styleSmaller = org.getTextStyles()
     styleBC = copy.copy(styleB)
     styleBC.alignment = TA_CENTER 
@@ -95,7 +95,7 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     doc = FooterDocTemplate(buffer, pagesize=(height, width))
     
     frame = org.getFrame(doc)
-    template = PageTemplate(id='test', frames=frame, onPage=org.get_header_footer(doccode="NCEAC.DOC.008", pagesize=(height, width)))
+    template = PageTemplate(id='test', frames=frame, onPage=org.get_header_footer(doccode="NCEAC.DOC.008", pagesize=(width, height)))
     doc.addPageTemplates([template])
     
     # Our main content holder 

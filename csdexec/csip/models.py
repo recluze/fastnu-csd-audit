@@ -122,6 +122,24 @@ class InstructorEmployment(models.Model):
         desc_name = ' '.join(fields)
         return desc_name  
     
+    
+    
+class InstructorOtherActivity(models.Model):
+    instructor = models.ForeignKey(Instructor)
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    date = models.DateField()
+    
+    def __unicode__(self): 
+        fields = [str(self.title)]
+        desc_name = ' '.join(fields)
+        return desc_name  
+
+
+
+
+
+
 
 
 

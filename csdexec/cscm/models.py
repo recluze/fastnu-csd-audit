@@ -6,7 +6,7 @@ from cscm.helpers.choices import DESIGNATION_CHOICES, SEMESTER_CHOICES, COURSE_T
 class Instructor(models.Model):
     name = models.CharField(max_length=200)
     age = models.CharField(max_length=200, default=25)
-    designation = models.CharField(max_length=1, choices=DESIGNATION_CHOICES)
+    designation = models.CharField(max_length=20, choices=DESIGNATION_CHOICES)
     joining_date = models.DateField()
     owner = models.ForeignKey(User)
     def __unicode__(self): 

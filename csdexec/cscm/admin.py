@@ -77,7 +77,7 @@ class CourseOutlineAdmin(admin.ModelAdmin):
         if db_field.name == "course" and not request.user.is_superuser:
             kwargs["queryset"] = Course.objects.filter(instructor__owner=request.user)
             return db_field.formfield(**kwargs)
-        return super(CourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(CourseOutlineAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
 admin.site.register(CourseOutline, CourseOutlineAdmin)
 

@@ -5,6 +5,7 @@ from cscm.views.report_nceac_courselog import *
 from cscm.views.report_qec_courselog import *    
 from cscm.views.report_nceac_coursedesc import * 
 from csip.views.report_nceac_faculty_profile import *
+from csip.views.report_internal_faculty_cv import *
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -27,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^reports/qec/courselog', report_qec_courselog), 
     url(r'^reports/nceac/coursedesc', report_nceac_coursedesc),
     url(r'^reports/nceac/faculty-profile', report_nceac_faculty_profile),
+    url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^grappelli/', include('grappelli.urls')),
 )
