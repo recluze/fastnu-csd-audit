@@ -45,6 +45,7 @@ admin.site.register(InstructorEducation, InstructorEducationAdmin)
 #    list_display = ('instructor', 'degree', 'year', 'university', 'institution')
 
 class InstructorPublicationAdmin(admin.ModelAdmin): 
+    list_display = ('instructor', 'title', 'journal', 'pub_date')
     def queryset(self, request):
         qs = super(InstructorPublicationAdmin, self).queryset(request)
         if request.user.is_superuser:

@@ -49,25 +49,30 @@ class InstructorEducation(models.Model):
 class InstructorPublication(models.Model):
     instructor = models.ForeignKey(Instructor)
     pub_bib = models.TextField('BibTex', blank=True, help_text='DEPRECATED. LEAVE BLANK!')
-    author_list = models.CharField('List of Authors', max_length=100, help_text='In "first name last name" format. Separate multiple authors with a comma.')
-    title = models.CharField(max_length=300, blank=True, help_text='In case of book, leave this field blank.')
-    journal = models.CharField('Journal/Book/Conference', max_length=100, blank=True)
-    volume = models.CharField(max_length=5, blank=True)
-    number = models.CharField(max_length=5, blank=True)
-    publisher = models.CharField(max_length=100, blank=True)
-    pub_date = models.DateField('Publication Date', blank=True)
-    hec_cat = models.CharField('HEC Category', max_length=2, blank=True, help_text='In case of local journals')
+    author_list = models.CharField('List of Authors', max_length=500, help_text='In "first name last name" format. Separate multiple authors with a comma.')
+    title = models.CharField(max_length=500, blank=True, help_text='In case of book, leave this field blank.')
+    journal = models.CharField('Journal/Book/Conference', max_length=500, blank=True)
+    journal_address = models.CharField('Address of Journal', max_length=500, blank=True)
+    volume = models.CharField(max_length=25, blank=True)
+    number = models.CharField(max_length=25, blank=True)
+    pages = models.CharField(max_length=25, blank=True, help_text='Page numbers in format starting--ending')
+    publisher = models.CharField(max_length=500, blank=True)
+    pub_date = models.DateField('Publication Date', help_text='If unpublished, set to today')
+    hec_cat = models.CharField('HEC Category', max_length=10, blank=True, help_text='In case of local journals')
     
     pub_type = models.CharField('Type', max_length=10, choices=PUB_TYPE_CHOICES)
-    impact_factor = models.CharField(max_length=10, blank=True)
-    status = models.CharField(max_length=10, choices=PUB_STATUS_CHOICES, blank=True)
+    impact_factor = models.CharField(max_length=10, blank=True, help_text='Please leave blank in case of books/conferences/non-impact factor journals')
+    status = models.CharField(max_length=20, choices=PUB_STATUS_CHOICES, blank=True)
     
+    def get_conf_citation(self, html=False):
+        cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
+        return cit 
     
     def pub_string(self):
-        return get_pub_string(self.pub_bib)
+        return self.title + ' ' + self.journal
     
     def __unicode__(self): 
-        return get_pub_string(self.pub_bib)
+        return self.title + ' ' + self.journal 
 
 
 
@@ -75,7 +80,7 @@ class InstructorPublication(models.Model):
 class InstructorConsultancy(models.Model):
     instructor = models.ForeignKey(Instructor)
     date = models.DateField()
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, help_text='Include project title, funding agency, date of award and duration and total amount of award; please specify whether you were principal investigator (PI) or co-Investigator')
     organization = models.CharField(max_length=200)
     
     
