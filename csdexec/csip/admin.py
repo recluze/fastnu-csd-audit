@@ -45,7 +45,7 @@ admin.site.register(InstructorEducation, InstructorEducationAdmin)
 #    list_display = ('instructor', 'degree', 'year', 'university', 'institution')
 
 class InstructorPublicationAdmin(admin.ModelAdmin): 
-    list_display = ('instructor', 'title', 'journal', 'pub_date')
+    list_display = ('instructor', 'title', 'journal', 'pub_date', 'pub_type', 'impact_factor')
     def queryset(self, request):
         qs = super(InstructorPublicationAdmin, self).queryset(request)
         if request.user.is_superuser:
@@ -134,5 +134,24 @@ class InstructorOtherActivityAdmin(admin.ModelAdmin):
         return super(InstructorOtherActivityAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 admin.site.register(InstructorOtherActivity, InstructorOtherActivityAdmin)
 
+
+
+
+
+class StudentThesesAdmin(admin.ModelAdmin):
+    def queryset(self, request):
+        qs = super(StudentThesesAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs 
+        
+        # get instructor's "owner" 
+        return qs.filter(instructor__owner=request.user)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "instructor" and not request.user.is_superuser:
+            kwargs["queryset"] = Instructor.objects.filter(owner=request.user)
+            return db_field.formfield(**kwargs)
+        return super(StudentThesesAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+admin.site.register(StudentTheses, StudentThesesAdmin)
 
 

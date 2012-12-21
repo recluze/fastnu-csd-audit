@@ -189,17 +189,18 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     cat_header = Paragraph('Principal publications during the last five years (give in standard bibliogrpahic format)', styleB)
     data = []
     for ipb in ipbs: 
-        pub_string = str(counter) + '. ' + str(ipb)
+        pub_string = str(counter) + '. ' + str(ipb.title)
         data.append([cat_header,
              Paragraph(pub_string, styleN),
-             Paragraph('date', styleN),
+             Paragraph(str(ipb.pub_date.year), styleN),
             ])
         cat_header = ''
-        counter += 1
+        counter = counter + 1
+        
     ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
             ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('SPAN', (0, 0), (0, -1))
+            # ('SPAN', (0, 0), (0, -1)) # gives error for some reason 
             ]    
     elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts)) 
 

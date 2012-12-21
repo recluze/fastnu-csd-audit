@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'csdexec.views.home', name='home'),
     # url(r'^csdexec/', include('csdexec.foo.urls')),
 
+    url(r'^grappelli/', include('grappelli.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
@@ -30,7 +31,6 @@ urlpatterns = patterns('',
     url(r'^reports/nceac/faculty-profile', report_nceac_faculty_profile),
     url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
-    url(r'^grappelli/', include('grappelli.urls')),
 )
 
 

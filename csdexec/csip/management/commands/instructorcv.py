@@ -6,6 +6,7 @@ from cscm.helpers.loadconfigs import get_config
 
 from docx import *
 
+import datetime 
 
 htmlCodes = (
     ('&', '&amp;'),
@@ -258,7 +259,7 @@ class Command(BaseCommand):
         
         # conference
         docbody.append(paragraph(' '))
-        docbody.append(paragraph('C. Papers submitted but not yet published (Submitted/pending acceptance/accepted)'))
+        docbody.append(paragraph('D. Conferences/scientific/technical reports (Papers presented in conferences, symposia, special lectures)'))
         ipcs = i.instructorpublication_set.filter(pub_type='Conference').order_by('-pub_date')
         c_str = '' 
         inner_counter = 1
@@ -270,8 +271,102 @@ class Command(BaseCommand):
                 
         tbem = table(tbdataem)
         docbody.append(tbem)
+        
+        # student theses 
+        s_c = add_section_header(docbody, s_c, 'STUDENT THESIS SUPERVISION (Master and Doctoral Students: name, theses, topic, dates, including period of supervision)')
+        ists = i.studenttheses_set.all()
+        c_str = '' 
+        inner_counter = 1
+        tbdataem = []
+        for ist in ists:    
+            c_str = str(inner_counter) + '. ' + ist.students + '. Title: ' + ist.thesis_title + ' (' + str(ist.dates) + ') Period of Supervision: ' + ist.supervision_period  
+            inner_counter += 1
+            tbdataem.append([c_str.replace('\n', ' ').replace('\r', ' ')])
+                
+        tbem = table(tbdataem)
+        docbody.append(tbem)
+        
+  
+
+        # Teaching in last two semesters 
+        this_year = datetime.datetime.now().year 
+        s_c = add_section_header(docbody, s_c, 'TEACHING (courses taught during last 2 semesters)')
+        
+        #spring 
+        ipcs_spring = i.course_set.filter(year=this_year).filter(semester='Spring')
+        tbdataem = []
+        inner_counter = 1
+        if len(ipcs_spring) > 0: 
+            tbdataem.append(['Spring ' + str(this_year)])
             
-        # FINALZE DOCUMENT 
+        for ic in ipcs_spring: 
+            tbdataem.append([str(ic.course_code) + ' ' + str(ic.course_name)])
+            
+        if len(tbdataem) > 0: 
+            tbem = table(tbdataem)
+            docbody.append(tbem)
+        
+        # fall courses 
+        ipcs_fall = i.course_set.filter(year=this_year).filter(semester='Fall')
+        tbdataem = []
+        inner_counter = 1
+        if len(ipcs_fall) > 0: 
+            tbdataem.append(['Fall ' + str(this_year)])
+            
+        for ic in ipcs_fall: 
+            tbdataem.append([str(ic.course_code) + ' ' + str(ic.course_name)])
+            
+        if len(tbdataem) > 0: 
+            tbem = table(tbdataem)
+            docbody.append(tbem)
+        
+        
+        # FEEDBACK INFORMATION
+        s_c = add_section_header(docbody, s_c, 'STUDENT FEEDBACK SUMMARY FOR THE PAST 2 SEMSETERS (the shaded area to be filled by the HOD)')
+        docbody.append(table([['A: Top 20%', 'B: Good', 'C: Satisfied', 'D: Dissatisfied', 'E: Bottom 20%']], borders='empty'))
+        docbody.append(paragraph(' '))
+        this_year = datetime.datetime.now().year 
+        last_year = this_year - 1
+        
+        # fall courses
+        tbdataem = [['Courses Taught', 'BS/MS/PhD', 'No. of Students', 'Student Feedback']]
+         
+        ipcs_fall = i.course_set.filter(year=last_year).filter(semester='Fall')
+        inner_counter = 1
+        if len(ipcs_fall) > 0: 
+            tbdataem.append(['Fall ' + str(last_year), ' ', ' ', ' '])
+
+        inner_counter = 1            
+        for ic in ipcs_fall: 
+            tbdataem.append([str(inner_counter) + '. ' + str(ic.course_code) + ' ' + str(ic.course_name), ' ', ' ', ' '])
+            inner_counter += 1
+             
+    
+        ipcs_spring = i.course_set.filter(year=this_year).filter(semester='Spring')
+        inner_counter = 1
+        if len(ipcs_spring) > 0: 
+            tbdataem.append(['Spring ' + str(this_year), ' ', ' ', ' '])
+
+        inner_counter = 1            
+        for ic in ipcs_spring: 
+            tbdataem.append([str(inner_counter) + '. ' + str(ic.course_code) + ' ' + str(ic.course_name), ' ', ' ', ' '])
+            inner_counter += 1
+        
+        if len(tbdataem) > 0: 
+            tbem = table(tbdataem)
+            docbody.append(tbem)
+        
+        
+        
+        # student theses 
+        s_c = add_section_header(docbody, s_c, 'SUPPORT SERVICE PROVIDED TO THE DEPARTMENT AND THE CAMPUS')
+        ists = ip.services_to_dept
+        tbdataem = [[str(ists)]]               
+        tbem = table(tbdataem)
+        docbody.append(tbem)
+        
+        
+        # FINALIZE DOCUMENT 
         
         # Create our properties, contenttypes, and other support files
         coreprops = coreproperties(title='Instructor CV', subject='A practical example of making docx from Python', creator='Mike MacCana', keywords=['python', 'Office Open XML', 'Word'])

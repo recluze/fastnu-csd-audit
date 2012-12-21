@@ -20,6 +20,7 @@ class InstructorProfile(models.Model):
     pay_step = models.CharField(max_length=50, blank=True)
     gross_pay = models.CharField(max_length=50, blank=True)
     percent_time_teaching = models.CharField(max_length=4, blank=True, help_text='Percentage of time given to teaching in organization. Please do not suffix the \'%\' symbol ')
+    services_to_dept = models.TextField('Services to the University', blank=True)
     awards = models.TextField('Academic Awards/Distinctions', blank=True)
     memberships = models.TextField('Professional Memberships', blank=True, help_text='e.g. editor of journal, academic bodies')
     
@@ -38,7 +39,7 @@ class InstructorEducation(models.Model):
     institution = models.CharField(max_length=100, blank=True)
     university = models.CharField('University/Board', max_length=100, blank=True)
     year = models.CharField(max_length=10, blank=True)
-    grade = models.CharField(max_length=10, blank=True)
+    grade = models.CharField(max_length=30, blank=True)
     
     def __unicode__(self): 
         fields = [str(self.instructor), '(' + str(self.degree) + ')']
@@ -60,9 +61,9 @@ class InstructorPublication(models.Model):
     pub_date = models.DateField('Publication Date', help_text='If unpublished, set to today')
     hec_cat = models.CharField('HEC Category', max_length=10, blank=True, help_text='In case of local journals')
     
-    pub_type = models.CharField('Type', max_length=10, choices=PUB_TYPE_CHOICES)
+    pub_type = models.CharField('Type', max_length=30, choices=PUB_TYPE_CHOICES)
     impact_factor = models.CharField(max_length=10, blank=True, help_text='Please leave blank in case of books/conferences/non-impact factor journals')
-    status = models.CharField(max_length=20, choices=PUB_STATUS_CHOICES, blank=True)
+    status = models.CharField(max_length=30, choices=PUB_STATUS_CHOICES, blank=True)
     
     def get_conf_citation(self, html=False):
         cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
@@ -142,7 +143,16 @@ class InstructorOtherActivity(models.Model):
 
 
 
-
+class StudentTheses(models.Model):
+    instructor = models.ForeignKey(Instructor)
+    students = models.CharField(max_length=200)
+    year = models.DateField(help_text='Start of semester date when thesis was registered')
+    thesis_title = models.CharField(max_length=300)
+    dates = models.CharField(max_length=200)
+    supervision_period = models.CharField(max_length=300) 
+    
+    def __unicode__(self):
+        return self.students + '. ' + self.thesis_title 
 
 
 
