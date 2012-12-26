@@ -48,6 +48,7 @@ class Course(models.Model):
 class CourseOutline(models.Model):
     course = models.OneToOneField(Course)
     objectives = models.TextField(blank=True)
+    outcomes = models.TextField(blank=True)
     text_books = models.TextField(blank=True)
     recommended_books = models.TextField(blank=True)
     course_policies = models.TextField(blank=True)
@@ -64,7 +65,7 @@ class WeekPlan(models.Model):
 
     course_outline = models.ForeignKey(CourseOutline)
     week_no = models.CharField(max_length=2)
-    topics = models.TextField(default='Please insert topics here', blank=True)
+    topics = models.TextField(blank=True)
     
     def __unicode__(self): 
         fields = ['Week', self.week_no, str(self.course_outline)]
@@ -86,7 +87,7 @@ class CourseLogEntry(models.Model):
     duration = models.CharField(max_length=5, default=1.5)
     topics_covered = models.TextField()
     evaluation_instruments = models.TextField(blank=True)
-    reading_materials = models.TextField(blank=True)
+    reading_materials = models.TextField(blank=True, default='Lecture Slides')
     other_activities = models.TextField(blank=True)
     contents_covered = models.TextField('Contents Covered?', blank=True, help_text='Leave blank for Yes; enter reason if not.')
         
