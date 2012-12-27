@@ -128,7 +128,7 @@ def report_nceac_courselog_pdf(request, course_name):
         raise RuntimeError("Course outlines not defined for " + str(course_name)) 
 
     datas = []
-    topics_covered_details = get_formatted_course_outline(c, co)
+    # topics_covered_details = get_formatted_course_outline(c, co)
     course_info = [
                    ['<b>Course Code</b>' , c.course_code] ,
                    ['<b>Course Title</b>' , c.course_name],
@@ -140,7 +140,52 @@ def report_nceac_courselog_pdf(request, course_name):
                    ['<b>Textbook</b> (or laboratory manual for laboratory courses)' , clean_string(co.text_books, False)],
                    ['<b>Reference Material</b>' , clean_string(co.recommended_books, False)],
                    ['<b>Course Goals</b>' , clean_string(co.objectives)],
-                   ['<b>Topics Covered in the Course with Number of lectures on Each Topic</b>(assume 15 week instruction and one-hour lectures)', topics_covered_details],
+                   # ['<b>Topics Covered in the Course with Number of lectures on Each Topic</b>(assume 15 week instruction and one-hour lectures)', topics_covered_details],
+                   # ['<b>Laboratory Projects/Experiments Done in the Course</b>', c.lab_projects],
+                   # ['<b>Programming Assignments Done in the Course</b>', c.prog_assignments],
+                ]
+
+    for k in course_info: 
+        headpara = Paragraph(k[0], styleN)
+        datas.append([headpara , Paragraph(k[1], styleN)])
+
+    t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
+    t.setStyle(org.getTableStyle())
+    elements.append(t)
+         
+    # topics covered in the course
+    credits = c.credits
+     
+    try :
+        datas = [[Paragraph('<b>Topics Covered in the Course with Number of lectures on Each Topic</b>(assume 15 week instruction and one-hour lectures)', styleN),
+                  Paragraph('Week No. (Duration)', styleB),
+                  Paragraph('Topics', styleB),
+                  ]]
+         
+        wp = WeekPlan.objects.filter(course_outline=co)
+        for w in wp: 
+            datas.append(['', Paragraph(unicode(w.week_no) + ' (' + unicode(credits) + ' hrs)', styleB), Paragraph(clean_string(unicode(w.topics)), styleN)])
+     
+             
+        metainfo_tablestyle_topics = [
+                        ('INNERGRID', (1, 0), (2, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                        ('BOX', (0, 0), (0, -1), 0.25, colors.black),
+                        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                        ('SPAN', (0, 0), (0, 3))
+                        ]
+        # t.setStyle(TableStyle(metainfo_tablestyle_topics))
+        t = LongTable(datas, colWidths=[5 * cm, 2 * cm, 10 * cm])
+        
+        t.setStyle(metainfo_tablestyle_topics)
+        elements.append(t)
+    except Exception: 
+        raise RuntimeError("No Topics Found in the list.")
+
+
+    datas = []
+    # topics_covered_details = get_formatted_course_outline(c, co)
+    course_info = [
                    ['<b>Laboratory Projects/Experiments Done in the Course</b>', c.lab_projects],
                    ['<b>Programming Assignments Done in the Course</b>', c.prog_assignments],
                 ]
@@ -150,10 +195,10 @@ def report_nceac_courselog_pdf(request, course_name):
         datas.append([headpara , Paragraph(k[1], styleN)])
 
     t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
-    
-    t.setStyle(TableStyle(org.getTableStyle()))
+    t.setStyle(org.getTableStyle())
     elements.append(t)
-         
+
+    
     # class time spent details
       
     headpara = Paragraph('Class Time Spent on (in credit hours)', styleB)  

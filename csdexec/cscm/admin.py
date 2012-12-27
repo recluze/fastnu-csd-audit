@@ -2,6 +2,7 @@ from cscm.models import Instructor, Course, CourseOutline, WeekPlan, CourseLogEn
 from django.contrib import admin 
 from django.db import models
 from django import forms 
+from django.forms.widgets import TextInput, Textarea
 
 
 # Inlines 
@@ -13,6 +14,10 @@ class WeekPlanInline(admin.TabularInline):
 class CourseLogEntryInline(admin.TabularInline):
     model = CourseLogEntry
     extra = 3
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size':'5'})}
+    #    models.TextField: {'widget': Textarea(attrs={'rows':10, 'cols':30})},
+    }
     
 class CourseOutlineInline(admin.StackedInline):
     model = CourseOutline
@@ -30,8 +35,8 @@ admin.site.register(Instructor, InstructorAdmin)
 class CourseAdmin(admin.ModelAdmin):
     # fields = ['instructor', 'course_name', 'credits', 'year']
     fieldsets = [
-                 ('Couse Basics', {'fields' : (('course_code', 'course_name', 'instructor'),
-                                                ('credits', 'year', 'batch', 'semester', 'course_type'),
+                 ('Couse Basics', {'fields' : (('course_code', 'course_name'),
+                                                ('credits', 'year', 'batch'), ('semester', 'course_type', 'instructor'),
                                                ), }),
                   ('Couse Policies', {'fields' : ('grade_distribution', 'pre_reqs', 'course_url', 'lab_projects', 'prog_assignments'), }),
                   ('Class Time Spent', {'fields' : ((('class_time_spent_theory', 'class_time_spent_analysis')), (('class_time_spent_design', 'class_time_spent_ethics')),)}),
@@ -39,6 +44,8 @@ class CourseAdmin(admin.ModelAdmin):
                 ]
     list_display = ('course_name', 'instructor', 'semester', 'year', 'credits')
     list_filter = ['instructor__name', 'year']
+    
+    save_as = True 
     inlines = [CourseOutlineInline, CourseLogEntryInline]
     
     # row-level permissions for courses. 
@@ -57,6 +64,17 @@ class CourseAdmin(admin.ModelAdmin):
             return db_field.formfield(**kwargs)
         return super(CourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
+    formfield_overrides = {
+        # models.CharField: {'widget': TextInput(attrs={'size':'10'})}
+        # models.TextField: {'widget': Textarea(attrs={'rows':20, 'cols':40})},
+    }
+    
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field = super(CourseAdmin, self).formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'course_url':
+          field.widget.attrs['size'] = '100'
+        return field
+
 admin.site.register(Course, CourseAdmin)
 
 

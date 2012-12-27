@@ -3,5 +3,5 @@
 	"dept_name": "Department of Computer Science",
 	"campus_name": "Peshawar Campus",
 	"logo_filename": "fastlogo.png", 
-	"clean_string_sentence_case" : "True"
+	"clean_string_sentence_case" : "False"
 }

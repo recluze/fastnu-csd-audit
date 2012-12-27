@@ -141,7 +141,6 @@ def report_nceac_faculty_profile_pdf(request, instructor):
             ]    
     elements.append(make_table(data, widths=[6 * cm, 4.5 * cm, 4.5 * cm, 7 * cm, 4 * cm], style=ts))    
     
-     
     # events 
     ievs = i.instructoreventparticpation_set.all().order_by('-start_date')
     counter = 1
@@ -160,7 +159,10 @@ def report_nceac_faculty_profile_pdf(request, instructor):
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('SPAN', (0, 0), (0, -1))
             ]    
+    if len(data) < 1: 
+        data.append([cat_header, 'None' , '-'])
     elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))    
+    
     
     # Consultancies 
     icons = i.instructorconsultancy_set.all().order_by('-date')
@@ -180,16 +182,17 @@ def report_nceac_faculty_profile_pdf(request, instructor):
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('SPAN', (0, 0), (0, -1))
             ]    
+    if len(data) < 1: 
+        data.append([cat_header, 'None' , '-'])
     elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts))
     
-    
     # Publications 
-    ipbs = i.instructorpublication_set.all().order_by('-id')
+    ipbs = i.instructorpublication_set.all().order_by('-pub_date')
     counter = 1
     cat_header = Paragraph('Principal publications during the last five years (give in standard bibliogrpahic format)', styleB)
     data = []
     for ipb in ipbs: 
-        pub_string = str(counter) + '. ' + str(ipb.title)
+        pub_string = ipb.get_citation()
         data.append([cat_header,
              Paragraph(pub_string, styleN),
              Paragraph(str(ipb.pub_date.year), styleN),
@@ -197,11 +200,14 @@ def report_nceac_faculty_profile_pdf(request, instructor):
         cat_header = ''
         counter = counter + 1
         
-    ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+    ts = [  ('INNERGRID', (1, 0), (-1, -1), 0.15, colors.black),
+            ('BOX', (0, 0), (0, -1), 0.25, colors.black),
             ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             # ('SPAN', (0, 0), (0, -1)) # gives error for some reason 
             ]    
+    if len(data) < 1: 
+        data.append([cat_header, 'None' , '-'])
     elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts)) 
 
     # Other activities 
@@ -222,6 +228,9 @@ def report_nceac_faculty_profile_pdf(request, instructor):
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('SPAN', (0, 0), (0, -1))
             ]    
+    if len(data) < 1: 
+        data.append([cat_header, 'None' , '-'])
+        
     elements.append(make_table(data, widths=[6 * cm, 16 * cm, 4 * cm], style=ts)) 
     
     # courses during last two years 
@@ -242,7 +251,7 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     ts = [  ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
             ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('SPAN', (0, 0), (0, -1))
+            # ('SPAN', (0, 0), (0, -1))
             ]    
     elements.append(make_table(data, widths=[6 * cm, 3 * cm, 3 * cm, 3 * cm, 11 * cm], style=ts)) 
 

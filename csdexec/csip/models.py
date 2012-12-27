@@ -68,6 +68,22 @@ class InstructorPublication(models.Model):
     def get_conf_citation(self, html=False):
         cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
         return cit 
+    def get_journal_citation(self, html=False):
+        cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
+        return cit 
+    def get_book_citation(self, html=False):
+        cit = self.author_list + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
+        return cit 
+    
+    def get_citation(self, html=False):
+        fnd = {
+               'Conference' : self.get_conf_citation,
+               'Journal' : self.get_journal_citation,
+               'Book Chapter' : self.get_journal_citation,
+               'Book' : self.get_book_citation,
+               }
+        return fnd[self.pub_type](html)
+        
     
     def pub_string(self):
         return self.title + ' ' + self.journal
