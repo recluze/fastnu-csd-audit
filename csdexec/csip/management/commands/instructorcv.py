@@ -44,7 +44,20 @@ def add_section_header(docbody, counter, header):
     return counter + 1
 
 class Command(BaseCommand): 
+    args = '<instructor_id>'
+    help = 'Generate instructor cv for the specified instructor'
     def handle(self, *args, **options):
+        if len(args) > 0:
+            try:  
+                instructor_id = int(args[0])
+                # self.stdout.write(str(instructor_id) + '\n')
+            except ValueError:
+                self.stdout.write("Usage ./manage.py instructorcv <instructor_id>\n\nUse instructorlist command to get ids of instructors\n")
+                return 
+        else: 
+            self.stdout.write("Usage ./manage.py instructorcv <instructor_id>\n\nUse instructorlist command to get ids of instructors\n")
+            return 
+        
         s_c = 1
         all_borders = {'all': 
                        {
@@ -67,7 +80,7 @@ class Command(BaseCommand):
         s_c = add_section_header(docbody, s_c, 'PERSONAL INFORMATION')
         # Append a table
         # get instructor information 
-        i = Instructor.objects.all()[0]
+        i = Instructor.objects.filter(id=instructor_id)[0]
         ip = i.instructorprofile
         
         docbody.append(table([['Name & Campus',
@@ -82,7 +95,7 @@ class Command(BaseCommand):
                                ip.designation,
                                str(ip.current_position_appointment_date),
                                str(ip.joining_date),
-                               str(ip.gross_pay)]
+                               str(ip.pay_grade) + '-' + str(ip.pay_step) + ' (Rs. ' + str(ip.gross_pay) + ')']
                               ], borders=all_borders))
     
     
@@ -148,6 +161,9 @@ class Command(BaseCommand):
             c_str = str(inner_counter) + '. ' + ic.description + '. ' + ic.organization 
             inner_counter += 1
             tbdataem.append([c_str.replace('\n', ' ').replace('\r', ' ')])
+        
+        if len(tbdataem) < 1: 
+            tbdataem.append(['None'])
             
         tbem = table(tbdataem)
         docbody.append(tbem)
@@ -269,6 +285,9 @@ class Command(BaseCommand):
             inner_counter += 1
             tbdataem.append([c_str.replace('\n', ' ').replace('\r', ' ')])
                 
+        if len(tbdataem) < 1: 
+            tbdataem.append(['None'])
+            
         tbem = table(tbdataem)
         docbody.append(tbem)
         
@@ -282,7 +301,10 @@ class Command(BaseCommand):
             c_str = str(inner_counter) + '. ' + ist.students + '. Title: ' + ist.thesis_title + ' (' + str(ist.dates) + ') Period of Supervision: ' + ist.supervision_period  
             inner_counter += 1
             tbdataem.append([c_str.replace('\n', ' ').replace('\r', ' ')])
-                
+        
+        if len(tbdataem) < 1: 
+            tbdataem.append(['None'])
+            
         tbem = table(tbdataem)
         docbody.append(tbem)
         
@@ -376,5 +398,5 @@ class Command(BaseCommand):
         _wordrelationships = wordrelationships(relationships)
         
         # Save our document
-        savedocx(document, coreprops, appprops, _contenttypes, _websettings, _wordrelationships, 'instructor-cv.docx')
+        savedocx(document, coreprops, appprops, _contenttypes, _websettings, _wordrelationships, 'cv-' + str(i.name).replace(' ', '_') + '.docx')
         self.stdout.write('Done\n')

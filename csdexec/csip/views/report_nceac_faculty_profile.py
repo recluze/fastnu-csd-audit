@@ -192,7 +192,7 @@ def report_nceac_faculty_profile_pdf(request, instructor):
     cat_header = Paragraph('Principal publications during the last five years (give in standard bibliogrpahic format)', styleB)
     data = []
     for ipb in ipbs: 
-        pub_string = ipb.get_citation()
+        pub_string = str(counter) + '. ' + ipb.get_citation()
         data.append([cat_header,
              Paragraph(pub_string, styleN),
              Paragraph(str(ipb.pub_date.year), styleN),

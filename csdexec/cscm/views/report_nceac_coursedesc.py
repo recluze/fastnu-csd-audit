@@ -135,7 +135,7 @@ def report_nceac_courselog_pdf(request, course_name):
                    ['<b>Prerequisites by Course(s) and Topics</b>', clean_string(c.pre_reqs, False)],
                    ['<b>Assessment Instruments with Weights</b> (homework, quizzes, midterms, final, programming assignments, lab work etc.)', clean_string(c.grade_distribution, False)],
                    ['<b>Course Coordinator</b>' , c.instructor.name],
-                   ['<b>URL</b> (if any)' , c.course_url],
+                   ['<b>URL</b> (if any)' , c.course_url, styleSmaller],
                    ['<b>Current Catalog Description</b>' , '?'],
                    ['<b>Textbook</b> (or laboratory manual for laboratory courses)' , clean_string(co.text_books, False)],
                    ['<b>Reference Material</b>' , clean_string(co.recommended_books, False)],
@@ -147,7 +147,12 @@ def report_nceac_courselog_pdf(request, course_name):
 
     for k in course_info: 
         headpara = Paragraph(k[0], styleN)
-        datas.append([headpara , Paragraph(k[1], styleN)])
+        if len(k) > 2 : 
+            use_style = k[2]
+        else: 
+            use_style = styleN 
+            
+        datas.append([headpara , Paragraph(k[1], use_style)])
 
     t = LongTable(datas, colWidths=[5 * cm, 12 * cm])
     t.setStyle(org.getTableStyle())
@@ -172,7 +177,7 @@ def report_nceac_courselog_pdf(request, course_name):
                         ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
                         ('BOX', (0, 0), (0, -1), 0.25, colors.black),
                         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                        ('SPAN', (0, 0), (0, 3))
+                        # ('SPAN', (0, 0), (0, 3))
                         ]
         # t.setStyle(TableStyle(metainfo_tablestyle_topics))
         t = LongTable(datas, colWidths=[5 * cm, 2 * cm, 10 * cm])

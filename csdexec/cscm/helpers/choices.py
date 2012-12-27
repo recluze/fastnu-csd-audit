@@ -28,5 +28,5 @@ PUB_TYPE_CHOICES = (
 
 
 EVENT_TYPE_CHOICES = (
-                      ('Conference', 'Conference'), ('Workshop', 'Workshop'), ('Training', 'Training'), ('Project', 'Project')
+                      ('Conference', 'Conference'), ('Workshop', 'Workshop'), ('Training', 'Training'), ('Project', 'Project'), ('Seminar', 'Seminar')
                       )

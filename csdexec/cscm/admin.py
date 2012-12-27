@@ -82,6 +82,7 @@ class CourseOutlineAdmin(admin.ModelAdmin):
     # fields = ['instructor', 'course_name', 'credits', 'year']
     list_filter = ['course__course_name', 'course__year']
     inlines = [WeekPlanInline]
+    save_as = True 
     
     def queryset(self, request):
         qs = super(CourseOutlineAdmin, self).queryset(request)

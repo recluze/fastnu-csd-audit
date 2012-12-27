@@ -46,6 +46,8 @@ admin.site.register(InstructorEducation, InstructorEducationAdmin)
 
 class InstructorPublicationAdmin(admin.ModelAdmin): 
     list_display = ('instructor', 'title', 'journal', 'pub_date', 'pub_type', 'impact_factor')
+    list_filter = ['instructor__name', 'pub_type']
+    date_hierarchy = 'pub_date'
     def queryset(self, request):
         qs = super(InstructorPublicationAdmin, self).queryset(request)
         if request.user.is_superuser:
@@ -139,6 +141,7 @@ admin.site.register(InstructorOtherActivity, InstructorOtherActivityAdmin)
 
 
 class StudentThesesAdmin(admin.ModelAdmin):
+    save_as = True 
     def queryset(self, request):
         qs = super(StudentThesesAdmin, self).queryset(request)
         if request.user.is_superuser:
