@@ -30,3 +30,8 @@ PUB_TYPE_CHOICES = (
 EVENT_TYPE_CHOICES = (
                       ('Conference', 'Conference'), ('Workshop', 'Workshop'), ('Training', 'Training'), ('Project', 'Project'), ('Seminar', 'Seminar')
                       )
+
+
+STUDENT_PROJECT_TYPES = (
+                         ('FYP-I', 'FYP-I'), ('FYP-II', 'FYP-II'), ('Thesis-I', 'Thesis-I'), ('Thesis-II', 'Thesis-II')     
+                         )

@@ -74,12 +74,12 @@ class WeekPlan(models.Model):
 
 
 class CourseLogEntry(models.Model):    
-    LECTURE_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 60)])
-    WEEK_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 17)])
+    # LECTURE_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 60)])
+    # WEEK_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 17)])
 
     course = models.ForeignKey(Course)
-    lecture_no = models.CharField(max_length=2)
-    week_no = models.CharField(max_length=2)
+    # lecture_no = models.CharField(max_length=2)
+    # week_no = models.CharField(max_length=2)
 
     lecture_date = models.DateField()
     
@@ -91,10 +91,37 @@ class CourseLogEntry(models.Model):
     other_activities = models.TextField(blank=True)
     contents_covered = models.TextField('Contents Covered?', blank=True, help_text='Leave blank for Yes; enter reason if not.')
         
+    def lecture_no(self):
+        ents = self.course.courselogentry_set.all().order_by('lecture_date')
+        l_no = 0
+        for e in ents:
+             l_no += 1 
+             if e == self: 
+                 break 
+        return l_no 
+    lecture_no.admin_order_field = 'lecture_date'
+    
+    def week_no(self):
+        ents = self.course.courselogentry_set.all().order_by('lecture_date')
+        l_no = 1
+        for e in ents:
+            if l_no == 1: 
+                 starting_week_of_year = e.lecture_date.isocalendar()[1] # get week of year 
+            if e == self: 
+                w_no = e.lecture_date.isocalendar()[1] - starting_week_of_year + 1
+                break 
+            l_no += 1
+        return w_no  
+    week_no.admin_order_field = 'lecture_date'
+    
     def __unicode__(self): 
-        fields = ['Lecture ', self.lecture_no, str(self.course)]
+        fields = ['Lecture ', str(self.lecture_no()), str(self.course)]
         desc_name = ' '.join(fields)
         return desc_name
+    
+
+
+
 # END Course  Stuff  ----------------------------------------------    
 
 

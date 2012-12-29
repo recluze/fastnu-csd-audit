@@ -15,7 +15,7 @@ class InstructorProfile(models.Model):
     designation = models.CharField(max_length=50, choices=DESIGNATION_CHOICES)
     current_position_appointment_date = models.DateField()
     joining_date = models.DateField()
-    admin_responsibility = models.CharField(max_length=200, blank=True)
+    admin_responsibility = models.TextField(blank=True)
     pay_grade = models.CharField(max_length=50, blank=True)
     pay_step = models.CharField(max_length=50, blank=True)
     gross_pay = models.CharField(max_length=50, blank=True)
@@ -64,7 +64,7 @@ class InstructorPublication(models.Model):
     pub_type = models.CharField('Type', max_length=30, choices=PUB_TYPE_CHOICES)
     impact_factor = models.CharField(max_length=10, blank=True, help_text='Please leave blank in case of books/conferences/non-impact factor journals')
     status = models.CharField(max_length=30, choices=PUB_STATUS_CHOICES, blank=True)
-    
+        
     def get_conf_citation(self, html=False):
         cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
         return cit 
@@ -105,6 +105,10 @@ class InstructorConsultancy(models.Model):
         fields = [str(self.organization), '(' + str(self.date) + ')']
         desc_name = ' '.join(fields)
         return desc_name        
+    
+    class Meta:
+        verbose_name = "Instructor Consultancy"
+        verbose_name_plural = "Instructor Consultancies"
                
 class InstructorEventParticpation(models.Model):
     instructor = models.ForeignKey(Instructor)
@@ -123,7 +127,7 @@ class InstructorEventParticpation(models.Model):
     
 class InstructorEmployment(models.Model):
     instructor = models.ForeignKey(Instructor)
-    position = models.CharField(max_length=100)
+    position = models.CharField(max_length=100, help_text='Please include only past employments (i.e. exclude positions held at FAST)')
     organization = models.CharField(max_length=200)
     start_date = models.DateField()
     end_date = models.DateField(blank=True)
@@ -144,7 +148,10 @@ class InstructorEmployment(models.Model):
         desc_name = ' '.join(fields)
         return desc_name  
     
-    
+    class Meta:
+        verbose_name = "Instructor Past Employment"
+        verbose_name_plural = "Instructor Past Employments"
+
     
 class InstructorOtherActivity(models.Model):
     instructor = models.ForeignKey(Instructor)
@@ -157,7 +164,9 @@ class InstructorOtherActivity(models.Model):
         desc_name = ' '.join(fields)
         return desc_name  
 
-
+    class Meta:
+        verbose_name = "Instructor Other Activity"
+        verbose_name_plural = "Instructor Other Activities"
 
 class StudentTheses(models.Model):
     instructor = models.ForeignKey(Instructor)
@@ -170,7 +179,9 @@ class StudentTheses(models.Model):
     def __unicode__(self):
         return self.students + '. ' + self.thesis_title 
 
-
+    class Meta:
+        verbose_name = "Student Thesis"
+        verbose_name_plural = "Student Theses"
 
 
 

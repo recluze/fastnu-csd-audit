@@ -102,9 +102,10 @@ admin.site.register(CourseOutline, CourseOutlineAdmin)
 
 
 class CourseLogEntryAdmin(admin.ModelAdmin): 
-    list_display = ['lecture_no', 'course']
+    list_display = ['lecture_no', 'week_no', 'lecture_date', 'course']
     list_filter = ['course__course_name', 'lecture_date']
     date_hierarchy = 'lecture_date'
+     
 
     def queryset(self, request):
         qs = super(CourseLogEntryAdmin, self).queryset(request)

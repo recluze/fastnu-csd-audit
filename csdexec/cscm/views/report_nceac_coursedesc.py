@@ -65,7 +65,7 @@ def report_nceac_coursedesc(request):
 
         # form not yet submitted ... display it 
         form = NceacCourseLogForm()
-        return render_to_response('nceac_courselog.html' , {
+        return render_to_response('nceac_coursedesc.html' , {
                 'form': form
                 }, c)
          
@@ -191,8 +191,8 @@ def report_nceac_courselog_pdf(request, course_name):
     datas = []
     # topics_covered_details = get_formatted_course_outline(c, co)
     course_info = [
-                   ['<b>Laboratory Projects/Experiments Done in the Course</b>', c.lab_projects],
-                   ['<b>Programming Assignments Done in the Course</b>', c.prog_assignments],
+                   ['<b>Laboratory Projects/Experiments Done in the Course</b>', clean_string(c.lab_projects)],
+                   ['<b>Programming Assignments Done in the Course</b>', clean_string(c.prog_assignments)],
                 ]
 
     for k in course_info: 

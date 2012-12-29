@@ -67,7 +67,7 @@ def report_qec_courselog(request):
             week_range = {
                           1: lambda: (1, 5),
                           2: lambda: (6, 10),
-                          3: lambda: (11, 15)
+                          3: lambda: (11, 16)
                           }[week_range]()
         except Exception, err:
              raise RuntimeError("Invalid values selected in form.")
@@ -157,6 +157,8 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     
     # =================== TABLE DATA 
     datas = []
+    headLNo = Paragraph('Lec.', styleB)
+    headWNo = Paragraph('Wk.', styleB)
     headDate = Paragraph('Date', styleB)
     headDuration = Paragraph('Duration', styleB)
     headTopics = Paragraph('Topics Covered', styleB)
@@ -165,10 +167,10 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     headSign = Paragraph('Signature', styleB)
     emptypara = Paragraph(' ', styleN)
     
-    datas = [[headDate, headDuration, headTopics, headEval, headRead, headSign]]
+    datas = [[headLNo, headWNo, headDate, headDuration, headTopics, headEval, headRead]]
     
     # courselogentry_data = CourseLogEntry.objects.all()
-    courselogentry_data = course_name.courselogentry_set.all()
+    courselogentry_data = course_name.courselogentry_set.all().order_by('lecture_date')
     
     start_week = int(week_range[0])
     end_week = int(week_range[1])
@@ -177,17 +179,24 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     gross_contents_covered = ''
     all_contents_covered = True 
     
-    for i in courselogentry_data: 
-        if int(i.week_no) < start_week or int(i.week_no) > end_week: 
+    l_no = 1 # start
+    w_no = 1
+    starting_week_of_year = 0   
+    for i in courselogentry_data:
+        l_no = i.lecture_no() 
+        w_no = i.week_no() 
+         
+        if w_no < start_week or w_no > end_week:
             continue 
+        
         # entered_logs += 1
         l_date = Paragraph(str(i.lecture_date.strftime("%d-%m, %Y")), styleSmaller)
         l_duration = Paragraph(str(i.duration), styleSmaller)
         l_topics_covered = Paragraph(clean_string(i.topics_covered), styleSmaller)
         l_eval = Paragraph(clean_string(i.evaluation_instruments), styleSmaller)
         l_reading = Paragraph(clean_string(i.reading_materials), styleSmaller)
-        emptypara = Paragraph(' ', styleSmaller)
-        datas.append([l_date, l_duration, l_topics_covered, l_eval, l_reading, emptypara])
+        emptypara = Paragraph(str(l_no) + ' ' + str(w_no), styleSmaller)
+        datas.append([str(l_no), str(w_no), l_date, l_duration, l_topics_covered, l_eval, l_reading])
         
         # logic for calculating meta data 
         num_assignments += i.evaluation_instruments.lower().count('assignment')
@@ -197,7 +206,10 @@ def report_qec_courselog_pdf(request, course_name, week_range):
             all_contents_covered = False
     
         
-    t = LongTable(datas, colWidths=[1.5 * cm, 2 * cm, 6 * cm, 3 * cm, 3 * cm, 3 * cm], repeatRows=1)
+    if len(datas) < 2: # 2 because we do have a header in any case  
+        raise Exception("No Course Log Entries found!") 
+        
+    t = LongTable(datas, colWidths=[1 * cm, 1 * cm, 1.5 * cm, 2 * cm, 6 * cm, 3 * cm, 3 * cm], repeatRows=1)
     
     t.setStyle(TableStyle(org.getTableStyle()))
     elements.append(t)
@@ -226,7 +238,7 @@ def report_qec_courselog_pdf(request, course_name, week_range):
                  [Paragraph(clean_string(gross_contents_covered), styleN), '']
                 ]
     metainfo_tablestyle = [('SPAN', (0, 2), (1, 2)),
-                           ('BOX', (0, 3), (1, 3), 0.25, colors.black), 
+                           ('BOX', (0, 3), (1, 3), 0.25, colors.black),
                            ('BOX', (0, 0), (0, 0), 0.25, colors.black),
                            ('BOX', (0, 1), (0, 1), 0.25, colors.black)]
     t1 = LongTable(metainfo, colWidths=[0.6 * cm, 16 * cm])
