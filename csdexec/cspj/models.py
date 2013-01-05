@@ -2,6 +2,14 @@ from cscm.models import Instructor
 from cscm.helpers.choices import * 
 from django.db import models
 
+class Student(models.Model):
+    name = models.CharField(max_length=50)
+    uid = models.CharField(max_length=20, blank=True)
+    
+    def __unicode__(self):
+        return self.name + ' (' + self.uid + ')' 
+
+
 class StudentProject(models.Model):
     instructor = models.ForeignKey(Instructor)
     year = models.PositiveIntegerField()
@@ -11,6 +19,7 @@ class StudentProject(models.Model):
     co_supervisors = models.TextField(blank=True)
     team_members = models.TextField()
     achievements = models.TextField(blank=True)
+    students = models.ManyToManyField(Student)
 
     def __unicode__(self): 
         fields = [self.title, "(" + str(self.semester) + " " + str(self.year) + ")"]
@@ -25,7 +34,7 @@ class StudentProjectLogEntry(models.Model):
     issue_originator = models.TextField(blank=True)
     recommendations = models.TextField(blank=True)
     evaluation_instruments = models.TextField(blank=True)
-    score = models.IntegerField()
+    score = models.IntegerField(help_text='Out of 10')
 
 
     def session_no(self):
@@ -43,3 +52,23 @@ class StudentProjectLogEntry(models.Model):
         fields = ['Session ' + str(self.session_no()) + ' on ' + str(self.session_date), "(" + str(self.project.title) + " " + str(self.project.year) + ")"]
         desc_name = ' '.join(fields)
         return desc_name
+
+    class Meta:
+        # verbose_name = "Student Project Log Entry"
+        verbose_name_plural = "Student Project Log Entries"
+        
+        
+class StudentProjectMilestone(models.Model):   
+    project = models.ForeignKey(StudentProject)     
+    milestone_name = models.CharField(max_length=100, choices=PROJECT_MILESTONES_CHOICES)
+    weight = models.IntegerField()
+    milestone_type = models.CharField(max_length=100, choices=PROJECT_MILESTONES_TYPE_CHOICES)
+    milestone_deadline = models.DateField(blank=True, null=True)
+
+
+    def __unicode__(self):
+        fields = [str(self.project) + ' - ' + str(self.milestone_name)]
+        desc_name = ' '.join(fields)
+        return desc_name
+    
+    

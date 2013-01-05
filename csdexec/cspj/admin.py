@@ -1,6 +1,7 @@
 from cscm.models import Instructor 
-from cspj.models import StudentProject, StudentProjectLogEntry
+from cspj.models import StudentProject, StudentProjectLogEntry, Student, StudentProjectMilestone
 from django.contrib import admin 
+
 
 
 
@@ -13,9 +14,22 @@ class StudentProjectLogEntryInline(admin.TabularInline):
     #}
     
     
+    
+#class StudentAdmin(admin.ModelAdmin):
+#    pass 
+    
+admin.site.register(Student)
+
+class StudentProjectMilestoneAdmin(admin.ModelAdmin):
+    save_as = True 
+    
+admin.site.register(StudentProjectMilestone, StudentProjectMilestoneAdmin)    
+    
 class StudentProjectAdmin(admin.ModelAdmin):
     list_display = ['title', 'semester', 'year', 'instructor']
     inlines = [StudentProjectLogEntryInline]
+    filter_horizontal = ('students',)
+
     
     def queryset(self, request):
         qs = super(StudentProjectAdmin, self).queryset(request)

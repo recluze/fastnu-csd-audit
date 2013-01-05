@@ -35,3 +35,13 @@ EVENT_TYPE_CHOICES = (
 STUDENT_PROJECT_TYPES = (
                          ('FYP-I', 'FYP-I'), ('FYP-II', 'FYP-II'), ('Thesis-I', 'Thesis-I'), ('Thesis-II', 'Thesis-II')     
                          )
+
+
+PROJECT_MILESTONES_CHOICES = (
+                              ('Proposal and SWOT', 'Proposal and SWOT'),
+                              )
+
+
+PROJECT_MILESTONES_TYPE_CHOICES = (
+                              ('Presentation', 'Presentation'), ('Document', 'Document'), ('Interaction', 'Interaction'),
+                              )
