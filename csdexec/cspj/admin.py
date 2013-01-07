@@ -1,7 +1,8 @@
 from cscm.models import Instructor 
 from cspj.models import StudentProject, StudentProjectLogEntry, Student, StudentProjectMilestone, StudentProjectMilestoneEvaluation, StudentProjectMilestoneCategory
 from django.contrib import admin 
-from django.forms import ModelForm
+from django.forms.models import BaseInlineFormSet
+from django.forms import ModelChoiceField
 
 
 
@@ -68,8 +69,25 @@ admin.site.register(StudentProjectLogEntry, StudentProjectLogEntryAdmin)
 
 
 
+# INDIVIDUAL EVALUATIONS 
+class StudentProjectMilestoneEvaluationInlineFormset(BaseInlineFormSet):
+#    def add_fields(self, form, index):
+#        super(StudentProjectMilestoneEvaluationInlineFormset, self).add_fields(form, index)
+#        students = Student.objects.none()
+#        if form.instance:
+#            try:   
+#                milestone = form.instance.milestone
+#            except StudentProjectMilestone.DoesNotExist:
+#                pass 
+#            else: 
+#               students = milestone.project.students
+#        form.fields['student'].label = 'Student'
+#        form.fields['student'].queryset = students
+    pass
+
 class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
     model = StudentProjectMilestoneEvaluation
+    # formset = StudentProjectMilestoneEvaluationInlineFormset
     extra = 3
     
     def queryset(self, request):
@@ -88,9 +106,22 @@ class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
             return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
     
         if db_field.name == "student": 
-            pass 
+            if request._obj_ is not None:
+               shown_students = request._obj_.project.students  
+
+            kwargs["queryset"] = shown_students
+            return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         
         return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def get_object(self, request, model):
+        object_id = request.META['PATH_INFO'].strip('/').split('/')[-1]
+        try:
+            object_id = int(object_id)
+        except ValueError:
+            return None
+        ret_obj = model.objects.get(pk=object_id)
+        return ret_obj
     
     save_as = True  
 
@@ -100,6 +131,11 @@ class StudentProjectMilestoneAdmin(admin.ModelAdmin):
     
     inlines = [StudentProjectMilestoneEvaluationInline]
     save_as = True
+    
+    def get_form(self, request, obj=None, **kwargs):
+        # just save obj reference for future processing in Inline
+        request._obj_ = obj
+        return super(StudentProjectMilestoneAdmin, self).get_form(request, obj, **kwargs)
     
     
 class StudentProjectMilestoneEvaluationAdmin(admin.ModelAdmin):

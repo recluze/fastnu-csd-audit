@@ -88,11 +88,11 @@ class StudentProjectMilestoneEvaluation(models.Model):
     instructor = models.ForeignKey(Instructor, verbose_name='evaluator')
     student = models.ForeignKey(Student)
     evaluator_confidence = models.FloatField(help_text='Confidence you have in your evaluation (x/10)')
-    problem_difficulty = models.FloatField(help_text='Difficulty of the problem targeted by the project (Thesis: x/10, FYP: x/5)', blank=True)
-    solution_strength = models.FloatField(help_text='Quality of proposed solution and student\'s contribution to it (Thesis: x/15, FYP: x/10)', blank=True)
-    execution = models.FloatField(help_text='Quality of implementation and student\'s contribution to it (x/10)')
-    issue_resolution = models.FloatField(help_text='Resolution of issues faced/raised in last presentation (Thesis: x/10, FYP: x/5)', blank=True)
-    presentation = models.FloatField(help_text='Presentation skills (x/5)', blank=True)
+    problem_difficulty = models.FloatField(help_text='Difficulty of the problem targeted by the project (Thesis: x/10, FYP: x/5) Leave blank for non-presentation milestones', blank=True)
+    solution_strength = models.FloatField(help_text='Quality of proposed solution and student\'s contribution to it (Thesis: x/15, FYP: x/10) Leave blank for non-presentation milestones', blank=True)
+    execution = models.FloatField(help_text='Quality of implementation and student\'s contribution to it (x/10, x/total weight for non-presentation milestones)')
+    issue_resolution = models.FloatField(help_text='Resolution of issues faced/raised in last presentation (Thesis: x/10, FYP: x/5) Leave blank for non-presentation milestones', blank=True)
+    presentation = models.FloatField(help_text='Presentation skills (x/5) Leave blank for non-presentation milestones', blank=True)
     comments = models.TextField(help_text='Suggestions made to the student, questions to be answered in next session', blank=True)
 
     # limit students 
