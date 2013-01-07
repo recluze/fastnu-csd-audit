@@ -1,7 +1,7 @@
 from cscm.models import Instructor 
-from cspj.models import StudentProject, StudentProjectLogEntry, Student, StudentProjectMilestone
+from cspj.models import StudentProject, StudentProjectLogEntry, Student, StudentProjectMilestone, StudentProjectMilestoneEvaluation, StudentProjectMilestoneCategory
 from django.contrib import admin 
-
+from django.forms import ModelForm
 
 
 
@@ -20,13 +20,11 @@ class StudentProjectLogEntryInline(admin.TabularInline):
     
 admin.site.register(Student)
 
-class StudentProjectMilestoneAdmin(admin.ModelAdmin):
-    save_as = True 
-    
-admin.site.register(StudentProjectMilestone, StudentProjectMilestoneAdmin)    
-    
+
 class StudentProjectAdmin(admin.ModelAdmin):
-    list_display = ['title', 'semester', 'year', 'instructor']
+    list_display = ['title', 'semester', 'year', 'project_type', 'instructor']
+    list_filter = ['project_type']
+    
     inlines = [StudentProjectLogEntryInline]
     filter_horizontal = ('students',)
 
@@ -67,3 +65,64 @@ class StudentProjectLogEntryAdmin(admin.ModelAdmin):
         return super(StudentProjectLogEntryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(StudentProjectLogEntry, StudentProjectLogEntryAdmin)
+
+
+
+class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
+    model = StudentProjectMilestoneEvaluation
+    extra = 3
+    
+    def queryset(self, request):
+        qs = super(StudentProjectMilestoneEvaluationInline, self).queryset(request)
+        if request.user.is_superuser:
+            return qs 
+    
+        # get instructor's "owner" 
+        return qs.filter(instructor__owner=request.user)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "instructor" and not request.user.is_superuser:
+            kwargs["queryset"] = Instructor.objects.filter(owner=request.user)
+            return db_field.formfield(**kwargs)
+        elif db_field.name == "instructor":
+            return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+        if db_field.name == "student": 
+            pass 
+        
+        return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    save_as = True  
+
+
+class StudentProjectMilestoneAdmin(admin.ModelAdmin):
+    list_display = ('project', 'milestone_category', 'milestone_deadline')
+    
+    inlines = [StudentProjectMilestoneEvaluationInline]
+    save_as = True
+    
+    
+class StudentProjectMilestoneEvaluationAdmin(admin.ModelAdmin):
+    
+    def queryset(self, request):
+        qs = super(StudentProjectMilestoneEvaluationAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs 
+    
+        # get instructor's "owner" 
+        return qs.filter(instructor__owner=request.user)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "instructor" and not request.user.is_superuser:
+            kwargs["queryset"] = Instructor.objects.filter(owner=request.user)
+            return db_field.formfield(**kwargs)
+        return super(StudentProjectMilestoneEvaluationAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    save_as = True  
+    
+admin.site.register(StudentProjectMilestone, StudentProjectMilestoneAdmin)    
+admin.site.register(StudentProjectMilestoneEvaluation, StudentProjectMilestoneEvaluationAdmin) 
+admin.site.register(StudentProjectMilestoneCategory)    
+
+
+
+

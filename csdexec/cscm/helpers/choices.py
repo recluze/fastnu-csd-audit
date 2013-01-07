@@ -39,6 +39,12 @@ STUDENT_PROJECT_TYPES = (
 
 PROJECT_MILESTONES_CHOICES = (
                               ('Proposal and SWOT', 'Proposal and SWOT'),
+                              ('Feasibility Plan', 'Feasibility Plan'),
+                              ('Presentation 1', 'Presentation 1'),
+                              ('Presentation 2', 'Presentation 2'),
+                              ('Presentation 3', 'Presentation 3'),
+                              ('Final Presentation', 'Final Presentation'),
+                              ('Supervisor Evaluation', 'Supervisor Evaluation'),
                               )
 
 
