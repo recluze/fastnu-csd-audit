@@ -16,14 +16,15 @@ class StudentProjectLogEntryInline(admin.TabularInline):
     
     
     
-#class StudentAdmin(admin.ModelAdmin):
-#    pass 
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'uid']
+    search_fields = ['name']
     
-admin.site.register(Student)
+admin.site.register(Student, StudentAdmin)
 
 
 class StudentProjectAdmin(admin.ModelAdmin):
-    list_display = ['title', 'semester', 'year', 'project_type', 'instructor']
+    list_display = ['title', 'semester', 'year', 'project_type', 'instructor', 'marks_evaluated']
     list_filter = ['project_type']
     
     inlines = [StudentProjectLogEntryInline]
@@ -70,24 +71,8 @@ admin.site.register(StudentProjectLogEntry, StudentProjectLogEntryAdmin)
 
 
 # INDIVIDUAL EVALUATIONS 
-class StudentProjectMilestoneEvaluationInlineFormset(BaseInlineFormSet):
-#    def add_fields(self, form, index):
-#        super(StudentProjectMilestoneEvaluationInlineFormset, self).add_fields(form, index)
-#        students = Student.objects.none()
-#        if form.instance:
-#            try:   
-#                milestone = form.instance.milestone
-#            except StudentProjectMilestone.DoesNotExist:
-#                pass 
-#            else: 
-#               students = milestone.project.students
-#        form.fields['student'].label = 'Student'
-#        form.fields['student'].queryset = students
-    pass
-
 class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
     model = StudentProjectMilestoneEvaluation
-    # formset = StudentProjectMilestoneEvaluationInlineFormset
     extra = 3
     
     def queryset(self, request):
@@ -107,27 +92,22 @@ class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
     
         if db_field.name == "student": 
             if request._obj_ is not None:
-               shown_students = request._obj_.project.students  
+               shown_students = request._obj_.project.students
+            else: 
+               shown_students = Student.objects.all()
 
             kwargs["queryset"] = shown_students
             return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         
         return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
-    
-    def get_object(self, request, model):
-        object_id = request.META['PATH_INFO'].strip('/').split('/')[-1]
-        try:
-            object_id = int(object_id)
-        except ValueError:
-            return None
-        ret_obj = model.objects.get(pk=object_id)
-        return ret_obj
-    
+
     save_as = True  
 
 
 class StudentProjectMilestoneAdmin(admin.ModelAdmin):
     list_display = ('project', 'milestone_category', 'milestone_deadline')
+    list_filter = ['project']
+    search_fields = ['project__title', 'project__year']
     
     inlines = [StudentProjectMilestoneEvaluationInline]
     save_as = True
@@ -139,6 +119,9 @@ class StudentProjectMilestoneAdmin(admin.ModelAdmin):
     
     
 class StudentProjectMilestoneEvaluationAdmin(admin.ModelAdmin):
+    list_display = ['get_project', 'student', 'instructor', 'get_milestone_category']
+    list_filter = ['milestone__project__title']
+    search_fields = ['milestone__project__title', 'milestone__project__year']
     
     def queryset(self, request):
         qs = super(StudentProjectMilestoneEvaluationAdmin, self).queryset(request)
@@ -156,8 +139,16 @@ class StudentProjectMilestoneEvaluationAdmin(admin.ModelAdmin):
     save_as = True  
     
 admin.site.register(StudentProjectMilestone, StudentProjectMilestoneAdmin)    
-admin.site.register(StudentProjectMilestoneEvaluation, StudentProjectMilestoneEvaluationAdmin) 
-admin.site.register(StudentProjectMilestoneCategory)    
+admin.site.register(StudentProjectMilestoneEvaluation, StudentProjectMilestoneEvaluationAdmin)
+
+ 
+class StudentProjectMilestoneCategoryAdmin(admin.ModelAdmin):
+    list_display = ['milestone_name', 'weight', 'project_type', 'milestone_type']
+    list_filter = ['milestone_name', 'project_type']
+    search_fields = ('milestone_name', 'project_type')
+    save_as = True 
+    
+admin.site.register(StudentProjectMilestoneCategory, StudentProjectMilestoneCategoryAdmin)    
 
 
 

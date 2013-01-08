@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from cscm.helpers.choices import DESIGNATION_CHOICES, SEMESTER_CHOICES, COURSE_TYPE_CHOICES
+from datetime import datetime, timedelta
 
 
 class Instructor(models.Model):
@@ -106,10 +107,13 @@ class CourseLogEntry(models.Model):
         l_no = 1
         for e in ents:
             if l_no == 1: 
-                 starting_week_of_year = e.lecture_date.isocalendar()[1] # get week of year 
+                 d1 = e.lecture_date
             if e == self: 
-                w_no = e.lecture_date.isocalendar()[1] - starting_week_of_year + 1
-                break 
+                d2 = e.lecture_date
+                monday1 = (d1 - timedelta(days=d1.weekday()))
+                monday2 = (d2 - timedelta(days=d2.weekday()))
+                return ((monday2 - monday1).days / 7) + 1
+            
             l_no += 1
         return w_no  
     week_no.admin_order_field = 'lecture_date'

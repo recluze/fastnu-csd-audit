@@ -1,7 +1,7 @@
 from cscm.models import Instructor
 from cscm.helpers.choices import * 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Sum
 
 class Student(models.Model):
     name = models.CharField(max_length=50)
@@ -24,11 +24,19 @@ class StudentProject(models.Model):
     achievements = models.TextField(blank=True)
     students = models.ManyToManyField(Student)
 
+    class Meta: 
+        ordering = ['year', 'semester', 'title']
+        
+    def marks_evaluated(self):
+        # get all milestones and add their weights 
+        vals = self.studentprojectmilestone_set.all().aggregate(done_weight=Sum('milestone_category__weight'))
+        return vals['done_weight']
+
+    
     def __unicode__(self): 
         fields = [self.title, "(" + str(self.semester) + " " + str(self.year) + ")"]
         desc_name = ' '.join(fields)
         return desc_name
-
 
 class StudentProjectLogEntry(models.Model):
     project = models.ForeignKey(StudentProject)
@@ -95,11 +103,22 @@ class StudentProjectMilestoneEvaluation(models.Model):
     presentation = models.FloatField(help_text='Presentation skills (x/5) Leave blank for non-presentation milestones', blank=True)
     comments = models.TextField(help_text='Suggestions made to the student, questions to be answered in next session', blank=True)
 
-    # limit students 
-    student.limit_choices_to = {'student__name__startswith': 'N'}
+    class Meta: 
+        unique_together = ('instructor', 'milestone', 'student')
+    
+    def get_project(self):
+        return str(self.milestone.project)
+    get_project.admin_order_field = 'milestone'
+    get_project.short_description = 'project'
+    
+    def get_milestone_category(self):
+        return str(self.milestone.milestone_category)
+    get_milestone_category.admin_order_field = 'milestone__milestone_category'
+    get_milestone_category.short_description = 'milestone category'
 
     def __unicode__(self):
-        fields = [str(self.milestone) + ' - ' + str(self.instructor) + 'for' + str(self.student)]
+        fields = [str(self.milestone) + ' - ' + str(self.instructor) + ' for ' + str(self.student)]
         desc_name = ' '.join(fields)
         return desc_name
+    
     
