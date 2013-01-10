@@ -106,7 +106,8 @@ class CourseLogEntryAdmin(admin.ModelAdmin):
     list_filter = ['course__course_name', 'lecture_date']
     date_hierarchy = 'lecture_date'
      
-
+    save_as = True 
+    
     def queryset(self, request):
         qs = super(CourseLogEntryAdmin, self).queryset(request)
         if request.user.is_superuser:
