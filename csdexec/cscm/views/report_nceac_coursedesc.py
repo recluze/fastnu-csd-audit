@@ -136,7 +136,7 @@ def report_nceac_courselog_pdf(request, course_name):
                    ['<b>Assessment Instruments with Weights</b> (homework, quizzes, midterms, final, programming assignments, lab work etc.)', clean_string(c.grade_distribution, False)],
                    ['<b>Course Coordinator</b>' , c.instructor.name],
                    ['<b>URL</b> (if any)' , c.course_url, styleSmaller],
-                   ['<b>Current Catalog Description</b>' , '?'],
+                   ['<b>Current Catalog Description</b>' , '-'],
                    ['<b>Textbook</b> (or laboratory manual for laboratory courses)' , clean_string(co.text_books, False)],
                    ['<b>Reference Material</b>' , clean_string(co.recommended_books, False)],
                    ['<b>Course Goals</b>' , clean_string(co.objectives)],

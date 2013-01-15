@@ -1,0 +1,147 @@
+<html>
+	<head>
+		<title>FAST NU Computer Science Department</title>
+		<style>
+			h1 {
+				font-weight: 200;
+			}
+			body {
+				font-weight: 200;
+				font-family: 'Sans Serif', 'Sans-serif', 'Helvetica';
+			}
+			.restable {
+				font-family: 'Sans Serif';
+				border: 1px solid #EEEEEE;
+			}
+			.restable td, .restable th {
+				border-bottom: 1px solid gray;
+				border-left: 1px solid #eee;
+				padding: 5px;
+				margin: 0px;
+				text-align: center;
+				font-size: smaller;
+				font-weight: 200;
+			}
+			.restable th {
+				color: black;
+				font-weight: 500;
+				border-top: 2px solid #00cc00;
+				border-bottom: 2px solid #99cc00;
+				padding: 5px;
+			}
+			th.lalign, td.lalign {
+				text-align: left;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>FAST NU Computer Science Department - Comprehensive Results</h1>
+
+		<!-- SHOW THE FORM  -->
+		{% if form != None %}
+
+		<strong>Please select the following details to generate results for.</strong>
+
+		<div class='form'>
+			<form method='post'>
+				{%csrf_token%}
+				{{form.as_ul}}
+				<input type='submit' value='Generate' />
+			</form>
+		</div>
+
+		{% else %}
+		<!-- SHOW THE RESULTS -->
+		<p>
+		Generating results for: {{res_title}}
+		</p>
+		
+		
+		<table class='restable' cellpadding="0" cellspacing="0">
+			<tr>
+			<th class='lalign'>Project</th> 
+			<th class='lalign'>Student</th> 
+			{% for m in milestones %}
+			   <th> {{m}} </td>
+			{% endfor %}
+			<th>Total</th>
+			</tr>
+			{% for row in results %}
+			  <tr>
+				{% for c in row  %}
+				<td class='lalign'>{{ c }}</li>
+				{% endfor %}
+			  </tr>
+			{% endfor %}	
+		</table>
+		
+		 
+		
+		<!-- 
+		{% for p, q in results.items %}
+		<p>
+			{% for w, x in q.items %}
+				
+				
+				
+				{% for s, t in x.studentrecords.items %}
+				| {{p.title}} | {{ s }} - {{w}} - {{ t.weighted_total|floatformat:2 }} -- 
+				{% endfor %}
+				
+				
+			{% endfor %}
+		</p>
+		{% endfor %}
+
+		
+		<!-- b>{{ milestone_cat.milestone_name }} on {{milestone_date}}</b>
+		<p>
+			Weight:{{ weight }}
+		</p -->
+
+		<!-- table class='restable' cellpadding="0" cellspacing="0">
+			<tr>
+				<th class='lalign'>Project</th>
+				<th>Problem Difficulty</th>
+				<th class='lalign'>Student</th>
+				<th>Solution</th>
+				<th>Execution</th>
+				<th>Issue Resolution</th>
+				<th>Presentation</th>
+				<th>Total</th>
+				<th>Weighted Total (x/{{weight}})</th>
+				<th class='lalign'>Comments</th>
+			</tr>
+			{% for k, v  in results.items %}
+			{% for i, j in v.studentrecords.items %}
+			<tr>
+				{% if forloop.first %}
+				<td class='lalign' rowspan='{{ v.num_students }}'>{{ v.title }}</td>
+				<td rowspan='{{ v.num_students }}'>{{ j.pd|floatformat:2 }}</td>
+				{% endif %}
+				<td class='lalign'>{{ i }}</td>
+				<td>{{ j.so|floatformat:2 }}</td>
+				<td>{{ j.ex|floatformat:2 }}</td>
+				<td>{{ j.ir|floatformat:2 }}</td>
+				<td>{{ j.pr|floatformat:2 }}</td>
+				<td>{{ j.total|floatformat:2 }}</td>
+				<td>{{ j.weighted_total|floatformat:2 }}</td>
+				{% if forloop.first %}
+				<td class='lalign' rowspan='{{ v.num_students }}'>{{ v.co }}</td>
+				{% endif %}
+			</tr>
+			{% endfor %}
+			{% endfor %}
+
+		</table -->
+		
+		{% endif %}
+
+		<h1>Meta</h1>
+		<ul>
+			<li>
+				<a href='/admin/logout'>Logout</a>
+			</li>
+		</ul>
+	</body>
+</html>

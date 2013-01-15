@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 from io import BytesIO
 
 from reportlab.lib.pagesizes import letter, A4, cm
-from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate
+from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate, Spacer
 from reportlab.platypus.flowables import PageBreak 
 from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
 
 from django.http import HttpResponse 
 
@@ -30,6 +31,8 @@ from django import forms
 from django.template import RequestContext
   
 from django.contrib.auth.decorators import login_required 
+
+import copy 
 # =============================================================================================
 @login_required 
 def report_nceac_courselog(request):
@@ -83,6 +86,9 @@ def report_nceac_courselog_pdf(request, course_name):
     
     org = Nceac()
     styleN, styleB, styleH, styleSmaller = org.getTextStyles()
+    styleBC = copy.copy(styleB)
+    styleBC.alignment = TA_CENTER
+    
     doc = FooterDocTemplate(buffer, pagesize=A4)
     frame = org.getFrame(doc)
     template = PageTemplate(id='test', frames=frame, onPage=org.get_header_footer(doccode="NCEAC.DOC.008"))
@@ -93,10 +99,32 @@ def report_nceac_courselog_pdf(request, course_name):
     elements = []
     
     # title page 
-    inst_name_head = Paragraph('Name of the Institution', styleB)
+    
+    metainfo_tablestyle = [
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ]
+    metainfo = [
+                 [Paragraph('NCEAC Secretariat', styleBC)],
+                 [Paragraph('Foundation University Institute of Management & Computer Sciences', styleBC)],
+                 [Paragraph('New Lalazar, Gulberg Avenue, Rawalpindi Cantt, 46000', styleBC)],
+                 [Paragraph('Phone : 051- 5516094, Fax: 051-5584574, PABX: 051- 5790360-2 (Ext. 202)', styleBC)],
+                 [Paragraph('http://www.nceac.org/', styleBC)],
+                 [Spacer(1 * cm, 1 * cm)],
+                 [Paragraph('COURSE LOG TEMPLATE', styleBC)]
+                 ]
+
+    t1 = LongTable(metainfo, colWidths=[20 * cm])
+    t1.setStyle(TableStyle(metainfo_tablestyle))
+    elements.append(t1)
+    
+    elements.append(Spacer(1 * cm, 1 * cm))
+    
+    inst_name_head = Paragraph('INSITUTION', styleB)
     inst_name = Paragraph(get_config('inst_name'), styleN)
-    dept_name_head = Paragraph('Department', styleB)
-    dept_name = Paragraph(get_config('dept_name'), styleN)
+    dept_name_head = Paragraph('PROGRAM(S) TO BE EVALUATED', styleB)
+    dept_name = Paragraph('BS (CS)', styleN)
+    
+    
     
     metainfo_tablestyle = [
                     # ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
@@ -108,6 +136,27 @@ def report_nceac_courselog_pdf(request, course_name):
     t1 = LongTable(metainfo, colWidths=[3 * cm, 12 * cm])
     t1.setStyle(TableStyle(metainfo_tablestyle))
     elements.append(t1)
+    
+    elements.append(Spacer(1 * cm, 1 * cm))
+    
+    this_course_name_head = Paragraph('Course Name', styleB)
+    this_course_name = Paragraph(str(course_name), styleN)
+    dept_name_head = Paragraph('Catalog Number', styleB)
+    dept_name = Paragraph(str(course_name.course_code), styleN)
+    inst_name_head = Paragraph('Instructor Name', styleB)
+    inst_name = Paragraph(str(course_name.instructor), styleN)
+    
+    metainfo_tablestyle = [
+                    # ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                    ('LINEBELOW', (1, 0), (1, -1), 0.25, colors.black),
+                    # ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ]
+    metainfo = [[this_course_name_head, this_course_name], [dept_name_head, dept_name], [inst_name_head, inst_name]]
+    t1 = LongTable(metainfo, colWidths=[3 * cm, 12 * cm])
+    t1.setStyle(TableStyle(metainfo_tablestyle))
+    elements.append(t1)
+
     
     elements.append(PageBreak())
 

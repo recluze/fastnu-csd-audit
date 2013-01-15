@@ -8,6 +8,7 @@ from csip.views.report_nceac_faculty_profile import *
 from csip.views.report_internal_faculty_cv import *
 
 from cspj.views.report_internal_prog_milestone import * 
+from cspj.views.report_internal_prog_complete import *
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -32,6 +33,7 @@ urlpatterns = patterns('',
     url(r'^reports/nceac/faculty-profile', report_nceac_faculty_profile),
     url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),
     url(r'^reports/internal/projects/milestone', report_internal_prog_milestone),
+    url(r'^reports/internal/projects/complete', report_internal_prog_complete),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
 

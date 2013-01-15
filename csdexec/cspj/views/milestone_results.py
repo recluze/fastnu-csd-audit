@@ -1,5 +1,5 @@
 class StudentRecord():
-    def __init__(self, studentname, project_type, weight):
+    def __init__(self, studentname, project_type, weight, milestone_type):
         self.tconf = 0
         self.ec = 0 
         self.pd = 0 
@@ -11,20 +11,23 @@ class StudentRecord():
         self.project_type = project_type 
         self.name = studentname
         self.weight = weight 
+        self.milestone_type = milestone_type
         
     def total(self):
+        total = 0 
+        total += (self.pd)
+        total += (self.so) 
+        total += (self.ex) 
+        total += (self.ir) 
+        total += (self.pr)
+        return total 
+    
+    def weighted_total(self): 
         if self.project_type == 'FYP':
-            total = 0 
-            total += (self.pd)
-            total += (self.so) 
-            total += (self.ex) 
-            total += (self.ir) 
-            total += (self.pr)
-            return total 
-        
-    def weighted_total(self):
-        if self.project_type == 'FYP':
-            return self.total() / 35 * self.weight   
+            if self.milestone_type == 'Presentation': 
+                return self.total() / 35 * self.weight
+            else: 
+               return self.total() / 10 * self.weight
 
 
 
@@ -45,12 +48,16 @@ class ProjectRecord():
     
 
 class MilestoneResultsCompiler():
-    def __init__(self):
-        self.project_results = {} 
+    def __init__(self, weight, milestone_cat):
+        self.project_results = {}
+        self.weight = weight 
+        self.milestone_cat = milestone_cat
         
-    def add_student_eval(self, student, project):
+    def add_student_eval(self, eval):
         r = self.project_results
         
+        student = eval.student 
+        project = eval.milestone.project 
         title = eval.milestone.project.title
         
         if project not in r: 
@@ -62,7 +69,7 @@ class MilestoneResultsCompiler():
         
         # create new student record if we don't already have it  
         if student not in srs.keys(): 
-            srs[student] = StudentRecord(student.name, 'FYP', weight)
+            srs[student] = StudentRecord(student.name, str(self.milestone_cat.project_type), self.weight, self.milestone_cat.milestone_type)
 
         # sr is student record
         sr = srs[student]
