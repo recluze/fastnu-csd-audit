@@ -27,8 +27,13 @@ class StudentRecord():
             if self.milestone_type == 'Presentation': 
                 return self.total() / 35 * self.weight
             else: 
-               return self.total() / 10 * self.weight
+               return self.total() # because execution is equal to total weight and is the only field 
 
+        if self.project_type == 'Thesis':
+            if self.milestone_type == 'Presentation': 
+                return self.total() / 45 * self.weight
+            else: 
+               return self.total() # because execution is equal to total weight and is the only field 
 
 
 class ProjectRecord():
@@ -90,7 +95,9 @@ class MilestoneResultsCompiler():
         sr.ex = ((sr.ec * sr.ex) + (ec * ex)) / (sr.ec + ec)
         sr.ir = ((sr.ec * sr.ir) + (ec * ir)) / (sr.ec + ec)
         sr.pr = ((sr.ec * sr.pr) + (ec * pr)) / (sr.ec + ec)
-        prd.co = prd.co + '\n' + co 
+        
+        if co.strip() != '':
+            prd.co = prd.co + co.strip() + '<br />' 
         
         
         # update total evaluator confidence 

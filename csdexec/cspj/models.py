@@ -20,12 +20,12 @@ class StudentProject(models.Model):
     project_type = models.CharField(max_length=20, choices=STUDENT_PROJECT_TYPES)
     title = models.CharField(max_length=500)
     co_supervisors = models.TextField(blank=True)
-    team_members = models.TextField()
+    # team_members = models.TextField()    # DEPRECATED 
     achievements = models.TextField(blank=True)
     students = models.ManyToManyField(Student)
 
     class Meta: 
-        ordering = ['year', 'semester', 'title']
+        ordering = ['-year', 'semester', 'title']
         
     def marks_evaluated(self):
         # get all milestones and add their weights 

@@ -2,7 +2,8 @@ from cscm.models import Instructor
 from cspj.models import StudentProject, StudentProjectLogEntry, Student, StudentProjectMilestone, StudentProjectMilestoneEvaluation, StudentProjectMilestoneCategory
 from django.contrib import admin 
 from django.forms.models import BaseInlineFormSet
-from django.forms import ModelChoiceField
+from django.forms import ModelChoiceField, ModelForm, ValidationError
+
 
 
 
@@ -30,6 +31,7 @@ class StudentProjectAdmin(admin.ModelAdmin):
     inlines = [StudentProjectLogEntryInline]
     filter_horizontal = ('students',)
 
+    save_as = True
     
     def queryset(self, request):
         qs = super(StudentProjectAdmin, self).queryset(request)
@@ -71,9 +73,72 @@ admin.site.register(StudentProjectLogEntry, StudentProjectLogEntryAdmin)
 
 
 # INDIVIDUAL EVALUATIONS 
+class StudentProjectMilestoneEvaluationForm(ModelForm):
+    class Meta: 
+        model = StudentProjectMilestoneEvaluation
+        
+
+    def clean(self):
+        data = self.cleaned_data
+        if data.get('evaluator_confidence') > 10 or data.get('evaluator_confidence') < 0: 
+            raise ValidationError('Evaluator confidence must be between 0 and 10')
+        
+        if self.instance.milestone.milestone_category.milestone_type.strip() == 'Presentation':
+             # all fields must be checked
+              
+             # check if we're in FYP 
+             if self.instance.milestone.milestone_category.project_type.strip() == 'FYP':
+                 if data.get('problem_difficulty') > 5 or data.get('problem_difficulty') < 0: 
+                    raise ValidationError('Problem difficulty must be between 0 and 5 for presentation-type milestones in FYPs')
+                 if data.get('solution_strength') > 10 or data.get('solution_strength') < 0: 
+                    raise ValidationError('Solution strength must be between 0 and 10 for presentation-type milestones in FYPs')
+                 if data.get('execution') > 10 or data.get('execution') < 0: 
+                    raise ValidationError('Execution must be between 0 and 10 for presentation-type milestones in FYPs')
+                 if data.get('issue_resolution') > 5 or data.get('issue_resolution') < 0: 
+                    raise ValidationError('Issue resolution must be between 0 and 5 for presentation-type milestones in FYPs')
+                 if data.get('presentation') > 5 or data.get('issue_resolution') < 0: 
+                    raise ValidationError('Presentation must be between 0 and 5 for presentation-type milestones in FYPs')
+                
+             # otherwise, we're in Thesis (just check)   
+             if self.instance.milestone.milestone_category.project_type.strip() == 'Thesis':
+                 if data.get('problem_difficulty') > 10 or data.get('problem_difficulty') < 0: 
+                    raise ValidationError('Problem difficulty must be between 0 and 10 for presentation-type milestones in Theses')
+                 if data.get('solution_strength') > 15 or data.get('solution_strength') < 0: 
+                    raise ValidationError('Solution strength must be between 0 and 15 for presentation-type milestones in Theses')
+                 if data.get('execution') > 10 or data.get('execution') < 0: 
+                    raise ValidationError('Execution must be between 0 and 10 for presentation-type milestones in Theses')
+                 if data.get('issue_resolution') > 10 or data.get('issue_resolution') < 0: 
+                    raise ValidationError('Issue resolution must be between 0 and 10 for presentation-type milestones in Theses')
+                 if data.get('presentation') > 5 or data.get('issue_resolution') < 0: 
+                    raise ValidationError('Presentation must be between 0 and 5 for presentation-type milestones in Theses')
+             
+        else: 
+            # non-presentation milestone 
+            blank_fields = ['problem_difficulty', 'solution_strength', 'issue_resolution', 'presentation']
+            for fld in blank_fields:
+                if True: # for both theses and FYPs  
+                # if self.instance.milestone.milestone_category.project_type.strip() == 'FYP':
+                    if data.get(fld): 
+                        raise ValidationError('Please only enter \'execution\' field for non-Presentation type milestones')
+                    
+                    
+            if True: # for both theses and FYPs
+            # if self.instance.milestone.milestone_category.project_type.strip() == 'FYP':
+                milestone_weight = self.instance.milestone.milestone_category.weight 
+                if data.get('execution') > milestone_weight or data.get('execution') < 0: 
+                    raise ValidationError('Execution must be between 0 and ' + str(milestone_weight) + ' for this milestone type.')
+             
+        if self.instance.milestone.milestone_category.milestone_type.strip() != 'Presentation':
+            # TODO: make sure only supervisor can entery non-presentation evaluaitons 
+            if self.instance.milestone.project.instructor != data.get('instructor'):
+                raise ValidationError('Only supervisor can enter non-presentation milestone evaluations')
+                
+        return self.cleaned_data    
+
 class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
     model = StudentProjectMilestoneEvaluation
     extra = 3
+    form = StudentProjectMilestoneEvaluationForm
     
     def queryset(self, request):
         qs = super(StudentProjectMilestoneEvaluationInline, self).queryset(request)
@@ -100,6 +165,8 @@ class StudentProjectMilestoneEvaluationInline(admin.TabularInline):
             return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         
         return super(StudentProjectMilestoneEvaluationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+ 
 
     save_as = True  
 
@@ -139,7 +206,7 @@ class StudentProjectMilestoneEvaluationAdmin(admin.ModelAdmin):
     save_as = True  
     
 admin.site.register(StudentProjectMilestone, StudentProjectMilestoneAdmin)    
-admin.site.register(StudentProjectMilestoneEvaluation, StudentProjectMilestoneEvaluationAdmin)
+# admin.site.register(StudentProjectMilestoneEvaluation, StudentProjectMilestoneEvaluationAdmin)
 
  
 class StudentProjectMilestoneCategoryAdmin(admin.ModelAdmin):

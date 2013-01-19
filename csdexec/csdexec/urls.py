@@ -1,11 +1,14 @@
 from django.conf.urls import patterns, include, url
 #from cscm.views import current_datetime 
 from cscm.views.reports_list import *
+from cscm.views.main_menu import *
 from cscm.views.report_nceac_courselog import *
 from cscm.views.report_qec_courselog import *    
+from cscm.views.report_qec_course_catalog import * 
 from cscm.views.report_nceac_coursedesc import * 
 from csip.views.report_nceac_faculty_profile import *
 from csip.views.report_internal_faculty_cv import *
+
 
 from cspj.views.report_internal_prog_milestone import * 
 from cspj.views.report_internal_prog_complete import *
@@ -24,11 +27,12 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', include(admin.site.urls)),
+    url(r'^$', display_main_menu),
     # url(r'^helloview', make_hello_report),
     url(r'^reports/all', display_complete_report_list),
     url(r'^reports/nceac/courselog', report_nceac_courselog), 
     url(r'^reports/qec/courselog', report_qec_courselog), 
+    url(r'^reports/qec/coursecatalog', report_qec_course_catalog),
     url(r'^reports/nceac/coursedesc', report_nceac_coursedesc),
     url(r'^reports/nceac/faculty-profile', report_nceac_faculty_profile),
     url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),

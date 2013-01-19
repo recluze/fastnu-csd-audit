@@ -86,7 +86,9 @@
 					<td>{{ j.total|floatformat:2 }}</td>
 					<td>{{ j.weighted_total|floatformat:2 }}</td>
 					{% if forloop.first %}
+					{% autoescape off%}
 					<td class='lalign' rowspan='{{ v.num_students }}'>{{ v.co }}</td>
+					{% endautoescape %}
 					{% endif %}
 				</tr>
 				{% endfor %}

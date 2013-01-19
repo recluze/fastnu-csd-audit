@@ -6,7 +6,7 @@ import os
 from io import BytesIO
 
 from reportlab.lib.pagesizes import letter, A4, cm
-from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate, Image
+from reportlab.platypus import BaseDocTemplate, Frame, Paragraph, LongTable, TableStyle, PageTemplate, Image, Spacer
 from reportlab.platypus.flowables import PageBreak 
 from reportlab.lib import colors
 
@@ -42,7 +42,7 @@ def report_qec_courselog(request):
         WEEKRANGE = (
                 (1, "Weeks 1 to 5"),
                 (2, "Weeks 6 to 10"),
-                (3, "Weeks 11 to 15"),
+                (3, "Weeks 11 to End"),
                 )
         # course_name = forms.ChoiceField(choices=TEMP)
         if request.user.is_superuser: 
@@ -74,7 +74,8 @@ def report_qec_courselog(request):
         
         inner_response = report_qec_courselog_pdf(request, course_name, week_range)
         http_response = HttpResponse(inner_response, c)  
-        filename = "QEC_CourseExec_" + str(course_name.course_code) + "-" + str(course_name.semester) + str(course_name.year) + ".pdf"
+        filename = "QEC_CourseExec_" + str(course_name.course_code) + "-" + str(course_name.semester) + str(course_name.year) +\
+                                "_" + str(week_range[0]) + "-" + str(week_range[1]) +".pdf"
         http_response['Content-Disposition'] = 'attachment;filename="' + filename + '"'
         return http_response  
         
@@ -181,7 +182,8 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     
     l_no = 1 # start
     w_no = 1
-    starting_week_of_year = 0   
+    starting_week_of_year = 0
+    other_activities = []    
     for i in courselogentry_data:
         l_no = i.lecture_no() 
         w_no = i.week_no() 
@@ -204,10 +206,13 @@ def report_qec_courselog_pdf(request, course_name, week_range):
         gross_contents_covered += i.contents_covered.strip() + '\n'
         if i.contents_covered.strip() != '': 
             all_contents_covered = False
+            
+        other_activities.append(i.other_activities)
     
         
     if len(datas) < 2: # 2 because we do have a header in any case  
         raise Exception("No Course Log Entries found!") 
+        
         
     t = LongTable(datas, colWidths=[1 * cm, 1 * cm, 1.5 * cm, 2 * cm, 6 * cm, 3 * cm, 3 * cm], repeatRows=1)
     
@@ -222,7 +227,19 @@ def report_qec_courselog_pdf(request, course_name, week_range):
     t1 = LongTable(metainfo, colWidths=[6 * cm, 12 * cm])
     t1.setStyle(TableStyle())
     elements.append(t1)
+    elements.append(Spacer(1, 1 * cm))
+    
+    
+    metainfo = [[Paragraph('Other activities (if any)', styleB)]]
+    
+    for oa in other_activities: 
+        metainfo.append([Paragraph(str(oa), styleN)])
+        
+    t1 = LongTable(metainfo, colWidths=[18 * cm])
+    t1.setStyle(TableStyle())
+    elements.append(t1)
     elements.append(Spacer(1, 0.5 * cm))
+        
     
     # elements.append(Spacer(1, 0.5 * cm))
     if all_contents_covered:
