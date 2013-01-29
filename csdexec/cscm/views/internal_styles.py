@@ -67,7 +67,7 @@ class Internal:
         return styleN, styleB, styleH, styleSmaller 
         
     def getFrame(self, doc):
-        frame = Frame(doc.leftMargin - 20 , doc.bottomMargin - 20, doc.width + 40, doc.height - 30,
+        frame = Frame(doc.leftMargin - 20 , doc.bottomMargin - 20, doc.width + 40, doc.height + 40,
                id='normal')
 
         return frame 
