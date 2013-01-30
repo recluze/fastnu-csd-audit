@@ -15,6 +15,7 @@ class InstructorProfile(models.Model):
     designation = models.CharField(max_length=50, choices=DESIGNATION_CHOICES)
     current_position_appointment_date = models.DateField()
     joining_date = models.DateField()
+    areas_of_interest = models.TextField(blank=True, help_text='Please enter one area per line')
     admin_responsibility = models.TextField(blank=True)
     pay_grade = models.CharField(max_length=50, blank=True)
     pay_step = models.CharField(max_length=50, blank=True)

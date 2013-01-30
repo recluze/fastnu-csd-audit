@@ -62,7 +62,7 @@ def report_qec_course_catalog(request):
                 det.append({'Course name': field_or_missing(course.course_name)})  
                 det.append({'Course code': course.course_code})
                 det.append({'Objectives' : get_outline_field(outline, 'objectives')})                  
-                det.append({'Outcomes' : get_outline_field(outline, 'outcomes')})
+                det.append({'Outcomes' : field_or_missing(get_outline_field(outline, 'outcomes'))})
                 det.append({'Pre-requisites' : course.pre_reqs})
                 det.append({'Text books and references' : get_outline_field(outline, 'text_books')})
                 det.append({'Recommended books' : get_outline_field(outline, 'recommended_books')})

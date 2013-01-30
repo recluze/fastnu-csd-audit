@@ -31,3 +31,18 @@ def get_pub_string(biblio):
     author_list.rstrip(', ')
     str_rep = author_list + '. "' + str(art['title']) + '". ' + str(art['journal']) + '. ' + str(art['year']) 
     return str_rep
+
+
+def get_standard_grade(marks):
+    if marks >= 90: return 'A+' 
+    if marks >= 86: return 'A'
+    if marks >= 82: return 'A-'
+    if marks >= 78: return 'B+'
+    if marks >= 74: return 'B'
+    if marks >= 70: return 'B-'
+    if marks >= 66: return 'C+'
+    if marks >= 62: return 'C'
+    if marks >= 58: return 'C-'
+    if marks >= 54: return 'D+'
+    if marks >= 50: return 'D'
+    return 'F' 

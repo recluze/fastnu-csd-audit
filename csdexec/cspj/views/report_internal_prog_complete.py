@@ -5,6 +5,7 @@ from cscm.helpers.choices import *
 from cspj.models import * 
 from cspj.views.milestone_results import * 
 
+import math
 import datetime 
 from datetime import timedelta 
 
@@ -22,6 +23,8 @@ def report_internal_prog_complete(request):
         type = forms.ChoiceField(choices=STUDENT_PROJECT_TYPES)
         semester = forms.ChoiceField(choices=SEMESTER_CHOICES)
         year = forms.CharField()
+        multiplicative_curve = forms.CharField(initial='1')
+        additive_curve = forms.CharField(initial='0')
         
     c = RequestContext(request)  
     c.update(csrf(request))
@@ -34,6 +37,9 @@ def report_internal_prog_complete(request):
             type = form.cleaned_data['type']
             semester = form.cleaned_data['semester']
             year = form.cleaned_data['year'] 
+            
+            mul_curve = float(form.cleaned_data['multiplicative_curve'])
+            add_curve = float(form.cleaned_data['additive_curve'])
             
             projects = StudentProject.objects.\
                         filter(year=year).\
@@ -69,8 +75,11 @@ def report_internal_prog_complete(request):
                         mrc.add_student_eval(eval)
                         
                     # TODO: these need to go for this particular milestone for this project. Not to total!
-                    compiled_result = mrc.get_compiled_result()[project]
-                    project_result[milestone_name] = compiled_result
+                    try: 
+                        compiled_result = mrc.get_compiled_result()[project]
+                        project_result[milestone_name] = compiled_result
+                    except KeyError: 
+                        pass 
                 results[project] = project_result   
             
             # loop over all_milestones and collect all student results for each milestone for all projects
@@ -118,7 +127,11 @@ def report_internal_prog_complete(request):
                     this_res.append(this_milestone_res)
             
                 # let's add this row to cumulative record
-                this_res.append("%.2f" % this_std_total)  
+                this_res.append("%.2f" % this_std_total) 
+                this_res.append(get_standard_grade(this_std_total))
+                curved_total = round((this_std_total * mul_curve) + add_curve, 0)
+                this_res.append("%.2f" %  curved_total)
+                this_res.append(get_standard_grade(curved_total))
                 result_record.append(this_res)
                         
             
@@ -128,7 +141,8 @@ def report_internal_prog_complete(request):
         return render_to_response('internal_prog_complete.html' , {
                 'results' : result_record,
                 'milestones' : all_milestones,
-                'res_title' : res_title 
+                'res_title' : res_title, 
+                'form' : form
                 }, c)
 
     

@@ -13,6 +13,13 @@ class Student(models.Model):
     class Meta: 
         ordering = ['name']
 
+class StudentProjectActiveManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_query_set(self):
+        return super(StudentProjectActiveManager, self).get_query_set().filter(active=True)
+
+
 class StudentProject(models.Model):
     instructor = models.ForeignKey(Instructor)
     year = models.PositiveIntegerField()
@@ -23,6 +30,12 @@ class StudentProject(models.Model):
     # team_members = models.TextField()    # DEPRECATED 
     achievements = models.TextField(blank=True)
     students = models.ManyToManyField(Student)
+    
+    active = models.BooleanField(help_text='Uncheck for past projects')
+    
+    objects = models.Manager()
+    active_projects = StudentProjectActiveManager()
+    
 
     class Meta: 
         ordering = ['-year', 'semester', 'title']
@@ -34,7 +47,7 @@ class StudentProject(models.Model):
 
     
     def __unicode__(self): 
-        fields = [self.title, "(" + str(self.semester) + " " + str(self.year) + ")"]
+        fields = [self.title, "(" + self.project_type + ' ' + str(self.semester) + " " + str(self.year) + ")"]
         desc_name = ' '.join(fields)
         return desc_name
 
@@ -85,6 +98,7 @@ class StudentProjectMilestone(models.Model):
     milestone_category = models.ForeignKey(StudentProjectMilestoneCategory)
     milestone_deadline = models.DateField(blank=True, null=True)
 
+    
     def __unicode__(self):
         fields = [str(self.project) + ' - ' + str(self.milestone_category)]
         desc_name = ' '.join(fields)

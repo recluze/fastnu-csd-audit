@@ -32,25 +32,44 @@
 			th.lalign, td.lalign {
 				text-align: left;
 			}
+			
+			form ul, form li{
+				border:0; margin:0; padding:0; list-style:none; 
+			}
+			form li{
+				clear:both;
+				list-style:none;
+				padding-bottom:10px;
+			}
+			form input, form select {
+				float:left;
+			}	
+			form label{
+				clear: left; 
+				width:200px;
+				float:left;
+			}
 		</style>
 	</head>
 	<body>
 		<h1>FAST NU Computer Science Department - Comprehensive Results</h1>
 
 		<!-- SHOW THE FORM  -->
-		{% if form != None %}
+		
 
 		<strong>Please select the following details to generate results for.</strong>
 
 		<div class='form'>
 			<form method='post'>
 				{%csrf_token%}
-				{{form.as_ul}}
+				{{form.as_table}}
 				<input type='submit' value='Generate' />
 			</form>
 		</div>
+		<div style='clear: both'>&nbsp;</div>
 
-		{% else %}
+		
+		{% if form != None %}
 		<!-- SHOW THE RESULTS -->
 		<p>
 		Generating results for: {{res_title}}
@@ -62,9 +81,12 @@
 			<th class='lalign'>Project</th> 
 			<th class='lalign'>Student</th> 
 			{% for m in milestones %}
-			   <th> {{m}} </td>
+			   <th> {{m}} </th>
 			{% endfor %}
 			<th>Total</th>
+			<th>Grade</th>
+			<th>C. Total</th>
+			<th>C. Grade</th>
 			</tr>
 			{% for row in results %}
 			  <tr>
@@ -76,7 +98,7 @@
 		</table>
 		
 		 
-		
+		{% endif %}
 		<!-- 
 		{% for p, q in results.items %}
 		<p>
@@ -135,7 +157,7 @@
 
 		</table -->
 		
-		{% endif %}
+		
 
 		<h1>Meta</h1>
 		<ul>
