@@ -6,6 +6,7 @@ from cscm.views.report_nceac_courselog import *
 from cscm.views.report_qec_courselog import *    
 from cscm.views.report_qec_course_catalog import * 
 from cscm.views.report_nceac_coursedesc import * 
+from cscm.views.report_internal_courseoutline import * 
 from csip.views.report_nceac_faculty_profile import *
 from csip.views.report_internal_faculty_cv import *
 from csip.views.report_qec_interest_areas import *
@@ -40,6 +41,7 @@ urlpatterns = patterns('',
     url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),
     url(r'^reports/internal/projects/milestone', report_internal_prog_milestone),
     url(r'^reports/internal/projects/complete', report_internal_prog_complete),
+    url(r'^reports/internal/course/outline', report_internal_courseoutline),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
 
