@@ -15,7 +15,14 @@ class InstructorProfile(models.Model):
     designation = models.CharField(max_length=50, choices=DESIGNATION_CHOICES)
     current_position_appointment_date = models.DateField()
     joining_date = models.DateField()
+    
+    email = models.EmailField()
+    contact_number = models.CharField(max_length=100, blank=True)
+    contact_address = models.TextField(blank=True)
+    
     areas_of_interest = models.TextField(blank=True, help_text='Please enter one area per line')
+    statement_of_research = models.TextField(blank=True, help_text='Please provide a brief statement about your research interest')
+    
     admin_responsibility = models.TextField(blank=True)
     pay_grade = models.CharField(max_length=50, blank=True)
     pay_step = models.CharField(max_length=50, blank=True)
@@ -67,13 +74,13 @@ class InstructorPublication(models.Model):
     status = models.CharField(max_length=30, choices=PUB_STATUS_CHOICES, blank=True)
         
     def get_conf_citation(self, html=False):
-        cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
+        cit = self.author_list + '. <i>\"' + self.title + '\"</i>. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ') ' + self.journal_address 
         return cit 
     def get_journal_citation(self, html=False):
-        cit = self.author_list + '. ' + self.title + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
+        cit = self.author_list + '. <i>\"' + self.title + '\"</i>. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ') ' + self.journal_address 
         return cit 
     def get_book_citation(self, html=False):
-        cit = self.author_list + '. ' + self.journal + '. (' + self.publisher + ' ' + str(self.pub_date.year) + ')' + self.journal_address 
+        cit = self.author_list + '. <i>\"' + self.journal + '\"</i>. (' + self.publisher + ' ' + str(self.pub_date.year) + ') ' + self.journal_address 
         return cit 
     
     def get_citation(self, html=False):

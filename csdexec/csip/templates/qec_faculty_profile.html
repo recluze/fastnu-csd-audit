@@ -1,0 +1,21 @@
+<html>
+	<title>FAST NU Computer Science Department</title>
+	<body>
+		<h1>FAST NU Computer Science Department - Faculty CV</h1>
+		<strong>Please select the faculty member to generate faculty CV for.</strong>
+
+		<div class='form'>
+			<form method='post'>
+				{%csrf_token%}
+				{{form.as_ul}}
+				<input type='submit' value='Generate' />
+			</form>
+		</div>
+		<h2>Meta</h2>
+		<ul>
+			<li>
+				<a href='/admin/logout'>Logout</a>
+			</li>
+		</ul>
+	</body>
+</html>

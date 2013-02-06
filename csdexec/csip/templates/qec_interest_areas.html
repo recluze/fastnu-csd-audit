@@ -32,6 +32,8 @@
 			th.lalign, td.lalign {
 				text-align: left;
 			}
+			xtable {border:1px solid #000}
+			xtd, xth {border:1px solid #000}
 		</style>
 	</head>
 	<body>
@@ -46,17 +48,17 @@
 
 		{% endfor %}
 		<h1>FAST NU Computer Science Department - Summary of Areas</h1>
-		<table>
+		<table border="1" bordercolor="black" cellspacing="0" cellpadding="0" style="border: 1px black solid; border-collapse: collapse;">
 		<!-- SHOW THE FORM  -->
 		<tr>
-		<th class="lalign">Program area of specialization</th>
+		<th class="lalign">Program area of specialization (Computer Science)</th>
 		<th>Courses in the area and average no of sections per year</th>
 		<th>No of Faculty members in each area</th>
 		<th>No of faculty members with PhD degree</th>
 		</tr>
 		{% for k,v in areas.items %}
 		<tr>
-			<td>Computer Science ({{ k }})</td><td>&nbsp;</td><td style='text-align: center'>{{ v }}</td><td>&nbsp;</td>
+			<td>{{ k }}</td><td>&nbsp;</td><td style='text-align: center'>{{ v }}</td><td>&nbsp;</td>
 			
 		</tr>
 		{% endfor %}

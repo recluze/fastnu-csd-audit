@@ -9,7 +9,7 @@ import copy
 
 class Qec: 
 
-    def get_header_footer(self): 
+    def get_header_footer(self, doccode='', pagesize=A4): 
         def qec_header_footer(canvas, doc):
             styles = getSampleStyleSheet()
             styleN = styles['Normal']

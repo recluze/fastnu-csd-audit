@@ -10,6 +10,8 @@ from cscm.views.report_internal_courseoutline import *
 from csip.views.report_nceac_faculty_profile import *
 from csip.views.report_internal_faculty_cv import *
 from csip.views.report_qec_interest_areas import *
+from csip.views.report_qec_list_publications import *
+from csip.views.report_qec_faculty_profile import * 
 
 
 from cspj.views.report_internal_prog_milestone import * 
@@ -36,6 +38,8 @@ urlpatterns = patterns('',
     url(r'^reports/qec/courselog', report_qec_courselog),
     url(r'^reports/qec/coursecatalog', report_qec_course_catalog),
     url(r'^reports/qec/interestareas', report_qec_interest_areas),
+    url(r'^reports/qec/publicationlist', report_qec_list_publications),
+    url(r'^reports/qec/faculty-cv', report_qec_faculty_profile),
     url(r'^reports/nceac/coursedesc', report_nceac_coursedesc),
     url(r'^reports/nceac/faculty-profile', report_nceac_faculty_profile),
     url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),
