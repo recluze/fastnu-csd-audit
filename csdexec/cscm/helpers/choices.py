@@ -47,6 +47,8 @@ PROJECT_MILESTONES_CHOICES = (
                               ('Project Plan', 'Project Plan'),
                               ('Proposal and SWOT', 'Proposal and SWOT'),
                               ('Report', 'Report'),
+                              ('Research Domain Introduction', 'Research Domain Introduction'),
+                              ('Research Plan', 'Research Plan'),
                               ('Supervisor Evaluation', 'Supervisor Evaluation'),
                               )
 

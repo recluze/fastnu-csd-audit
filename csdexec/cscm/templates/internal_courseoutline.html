@@ -1,8 +1,29 @@
 <html>
 	<title>FAST NU Computer Science Department</title>
+	<style lang="css">
+	form ul, form li{
+				border:0; margin:0; padding:0; list-style:none; 
+			}
+			form li{
+				clear:both;
+				list-style:none;
+				padding-bottom:10px;
+			}
+			form input {
+				float:left;
+				clear: left;
+			}	
+			form label{
+				clear: left; 
+				width:200px;
+				float:left;
+			}
+	</style>
 	<body>
 		<h1>FAST NU Computer Science Department - Course Outline</h1>
 		<strong>Please select the course to generate outline for.</strong>
+
+		{% if form %}
 
 		<div class='form'>
 			<form method='post'>
@@ -11,7 +32,14 @@
 				<input type='submit' value='Generate' />
 			</form>
 		</div>
-		<h2>Meta</h2>
+		
+		{% else %}
+		<br />
+<textarea rows='20' cols='80'>
+{{outline_str}}
+</textarea>
+		{% endif %}
+		<h2 style="clear: both">Meta</h2>
 		<ul>
 			<li><a href='/admin/logout'>Logout</a></li>
 		</ul>

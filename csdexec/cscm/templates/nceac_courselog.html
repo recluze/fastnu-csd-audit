@@ -1,9 +1,28 @@
 <html>
 	<title>FAST NU Computer Science Department</title>
+	<style lang="css">
+	form ul, form li{
+				border:0; margin:0; padding:0; list-style:none; 
+			}
+			form li{
+				clear:both;
+				list-style:none;
+				padding-bottom:10px;
+			}
+			form input {
+				float:left;
+				clear: left;
+			}	
+			form label{
+				clear: left; 
+				width:200px;
+				float:left;
+			}
+	</style>
 	<body>
 		<h1>FAST NU Computer Science Department - NCEAC Courselog</h1>
 		<strong>Please select the course to generate log for.</strong>
-
+		
 		<div class='form'>
 			<form method='post'>
 				{%csrf_token%}
@@ -11,6 +30,7 @@
 				<input type='submit' value='Generate' />
 			</form>
 		</div>
+		<div style='clear:both'>&nbsp;</div>
 		<h2>Meta</h2>
 		<ul>
 			<li><a href='/admin/logout'>Logout</a></li>

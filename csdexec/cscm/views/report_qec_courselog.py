@@ -45,10 +45,12 @@ def report_qec_courselog(request):
                 (3, "Weeks 11 to End"),
                 )
         # course_name = forms.ChoiceField(choices=TEMP)
+        num_courses = Course.objects.count()
         if request.user.is_superuser: 
-            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all().order_by('-year', 'semester'))
         else: 
-            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user).order_by('-year', 'semester'))
+        course_name.widget.attrs['size'] = num_courses if num_courses < 10 else 10 
         week_range = forms.MultipleChoiceField(choices=WEEKRANGE)
     
     c = RequestContext(request)  

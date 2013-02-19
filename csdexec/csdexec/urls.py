@@ -45,6 +45,7 @@ urlpatterns = patterns('',
     url(r'^reports/internals/instructor-cv', report_internal_faculty_cv),
     url(r'^reports/internal/projects/milestone', report_internal_prog_milestone),
     url(r'^reports/internal/projects/complete', report_internal_prog_complete),
+    url(r'^reports/internal/course/outline/(?P<type>[a-z]*)/', report_internal_courseoutline),
     url(r'^reports/internal/course/outline', report_internal_courseoutline),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )

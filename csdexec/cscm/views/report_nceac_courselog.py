@@ -41,10 +41,12 @@ def report_nceac_courselog(request):
                 (1, "Course 1"),
                 (2, "Course 2")
                 )
-        if request.user.is_superuser: 
-            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+        num_courses = Course.objects.count()
+        if request.user.is_superuser:
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all().order_by('-year', 'semester'))
         else: 
-            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user).order_by('-year', 'semester'))
+        course_name.widget.attrs['size'] = num_courses if num_courses < 10 else 10 
         
     
     c = RequestContext(request)  

@@ -32,18 +32,19 @@ from django.contrib.auth.decorators import login_required
 # =============================================================================================
 
 @login_required
-def report_internal_courseoutline(request):
+def report_internal_courseoutline(request, type='pdf'):
     class CourseSelectionForm(forms.Form):
         TEMP = (
                 (1, "Course 1"),
                 (2, "Course 2")
                 )
         # course_name = forms.ChoiceField(choices=TEMP)
+        num_courses = Course.objects.count()
         if request.user.is_superuser: 
             course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
         else: 
             course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
-            
+        course_name.widget.attrs['size'] = num_courses if num_courses < 10 else 10 
             
     c = RequestContext(request)  
     c.update(csrf(request))
@@ -55,11 +56,17 @@ def report_internal_courseoutline(request):
         form.is_valid()
         course_name = form.cleaned_data['course_name']
         course_name = course_name[0]
-        inner_response = report_internal_courseoutline_pdf(request, course_name)
-        http_response = HttpResponse(inner_response, c)  
-        filename = str(course_name.course_code) + "-" + str(course_name.semester) + str(course_name.year) + "-Outline.pdf"
-        http_response['Content-Disposition'] = 'attachment;filename="' + filename + '"'
-        return http_response  
+        if type == 'pdf': 
+            inner_response = report_internal_courseoutline_pdf(request, course_name)
+            http_response = HttpResponse(inner_response, c)  
+            filename = str(course_name.course_code) + "-" + str(course_name.semester) + str(course_name.year) + "-Outline.pdf"
+            http_response['Content-Disposition'] = 'attachment;filename="' + filename + '"'
+            return http_response
+        else: 
+            outline_str = get_outline_str(course_name, type)
+            return render_to_response('internal_courseoutline.html' , {
+                'outline_str': outline_str
+                }, c)  
         
     else:  
 
@@ -71,7 +78,66 @@ def report_internal_courseoutline(request):
          
 
     
+# ============= Non-PDF Gen
+def ln(str):
+    return str + "\n";
+def h1(str):
+    return ln(str) + ln("=" * len(str))
+      
 
+def get_outline_str(c, type):
+    try:
+        co = CourseOutline.objects.filter(course=c)[0] # one-to-one relation
+    except Exception, err:
+        raise RuntimeError("Course outlines not defined for " + str(course_name)) 
+
+    out = ''
+    if type == 'markdown':
+        out += ln('% Course Outline ' + ' '.join([c.course_name, c.semester, str(c.year)]))
+        out += ln('% ' + str(c.instructor))
+        out += ln(' ')
+        
+        out += h1('Objectives')
+        out += ln(co.objectives) + ln(' ')  
+        
+        out += h1('Outcomes')
+        out += ln(co.outcomes) + ln(' ')
+        
+        out += h1('Grade Distribution')
+        out += ln(clean_string(c.grade_distribution, False).replace('<br />', '\n')) + ln(' ')
+        
+        out += h1('Textbooks')
+        out += ln(co.text_books) + ln(' ')
+        
+        out += h1('Recommended Readings')
+        out += ln(co.recommended_books) + ln(' ')
+        
+        out += h1('Course Policies')
+        out += ln(co.course_policies) + ln(' ')
+        
+        out += h1('Other Information')
+        out += ln(co.other_information) + ln(' ')
+        
+        out += h1('Topic Breakdown')
+        
+        wp = WeekPlan.objects.filter(course_outline=co)
+        for w in wp: 
+            out += ln('*Week ' + ('%02d' % int(w.week_no)) + '* (' + unicode(c.credits) + ' hrs) ' + unicode(w.topics))
+        
+        
+        
+#        out += h1('Outcomes')
+#        out += ln(co.outcomes) + ln(' ')
+#        out += h1('Outcomes')
+#        out += ln(co.outcomes) + ln(' ')
+#        out += h1('Outcomes')
+#        out += ln(co.outcomes) + ln(' ')
+        
+        
+        
+    else: 
+        out += 'Unsupported format: ' + type 
+    return out 
 
 
 

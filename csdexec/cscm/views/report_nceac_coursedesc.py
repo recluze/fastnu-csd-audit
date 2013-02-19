@@ -40,9 +40,9 @@ def report_nceac_coursedesc(request):
                 )
         # course_name = forms.ChoiceField(choices=TEMP)
         if request.user.is_superuser: 
-            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all())
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.all().order_by('-year', 'semester'))
         else: 
-            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user))
+            course_name = forms.ModelMultipleChoiceField(queryset=Course.objects.filter(instructor__owner=request.user).order_by('-year', 'semester'))
             
             
     c = RequestContext(request)  
