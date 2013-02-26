@@ -42,8 +42,9 @@ def report_qec_interest_areas(request):
          
          areas = re.split("\n", areas)
          
-         for a in areas: 
-             a = a.strip().lower()
+         for a in areas:
+             if a.upper() != a:  # leave all caps alone 
+                a = a.strip().lower()
              if a == '': continue 
              
              try: 
@@ -54,7 +55,8 @@ def report_qec_interest_areas(request):
 
     areas = {}
     for area, count in all_areas.items():
-        area = transform_sentence_case([area])[0]
+        if area.upper() != area: # leave all caps alone 
+            area = transform_sentence_case([area])[0]
         areas[area] = count
         
     
