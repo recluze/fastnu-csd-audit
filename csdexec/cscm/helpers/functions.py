@@ -2,7 +2,7 @@ from tl.rename.case import transform_sentence_case
 from loadconfigs import *
 
 # for parsing bibtex
-from zs.bibtex.parser import parse_string
+# from zs.bibtex.parser import parse_string
 
 
 def clean_string(instr, change_case=True):
