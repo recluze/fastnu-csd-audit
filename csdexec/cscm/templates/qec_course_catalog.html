@@ -54,6 +54,7 @@
 		{% else %}
 		<!-- SHOW THE RESULTS -->
 	
+		{% autoescape off %}
 		{% for c in catalog %}
 		<p>
 			{% for field in c %}
@@ -64,7 +65,9 @@
 			
 			{% endfor %}
 		</p>
+		
 		{% endfor %}
+		{% endautoescape %}
 				
 		{% endif %}
 

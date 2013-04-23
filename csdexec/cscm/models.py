@@ -21,6 +21,7 @@ class Course(models.Model):
     instructor = models.ForeignKey(Instructor)
     course_name = models.CharField(max_length=200)
     credits = models.IntegerField()
+    lab_hours = models.IntegerField(help_text='In Credits')
     year = models.PositiveIntegerField()
     batch = models.CharField(max_length=10, default='BS11')
     semester = models.CharField(max_length=10, choices=SEMESTER_CHOICES)
@@ -44,12 +45,22 @@ class Course(models.Model):
         fields = [self.course_name, "(" + str(self.semester) + " " + str(self.year) + ")"]
         desc_name = ' '.join(fields)
         return desc_name
+
+class ProgramObjective(models.Model):    
+    # LECTURE_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 60)])
+    # WEEK_NUM_CHOICES = tuple([(str(x), str(x)) for x in range(1, 17)])
+
+    objectiveOrder = models.IntegerField()
+    objectiveText = models.TextField()
+    def __unicode__(self): 
+        return self.objectiveText
     
 
 class CourseOutline(models.Model):
     course = models.OneToOneField(Course)
     objectives = models.TextField(blank=True)
     outcomes = models.TextField(blank=True)
+    corresponding_program_objectives = models.ManyToManyField(ProgramObjective, help_text='Ctrl+Click to select multiple objectives')
     text_books = models.TextField(blank=True)
     recommended_books = models.TextField(blank=True)
     course_policies = models.TextField(blank=True)
@@ -124,7 +135,7 @@ class CourseLogEntry(models.Model):
         return desc_name
     
 
-
+    
 
 # END Course  Stuff  ----------------------------------------------    
 

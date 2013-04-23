@@ -1,4 +1,4 @@
-from cscm.models import Instructor, Course, CourseOutline, WeekPlan, CourseLogEntry
+from cscm.models import Instructor, Course, CourseOutline, WeekPlan, CourseLogEntry, ProgramObjective
 from django.contrib import admin 
 from django.db import models
 from django import forms 
@@ -36,7 +36,7 @@ class CourseAdmin(admin.ModelAdmin):
     # fields = ['instructor', 'course_name', 'credits', 'year']
     fieldsets = [
                  ('Couse Basics', {'fields' : (('course_code', 'course_name'),
-                                                ('credits', 'year', 'batch'), ('semester', 'course_type', 'instructor'),
+                                                ('credits', 'lab_hours', 'year', 'batch'), ('semester', 'course_type', 'instructor'),
                                                ), }),
                   ('Couse Policies', {'fields' : ('grade_distribution', 'pre_reqs', 'course_url', 'lab_projects', 'prog_assignments'), }),
                   ('Class Time Spent', {'fields' : ((('class_time_spent_theory', 'class_time_spent_analysis')), (('class_time_spent_design', 'class_time_spent_ethics')),)}),
@@ -84,6 +84,8 @@ class CourseOutlineAdmin(admin.ModelAdmin):
     inlines = [WeekPlanInline]
     save_as = True 
     
+    filter_vertical = ('corresponding_program_objectives',)
+    
     def queryset(self, request):
         qs = super(CourseOutlineAdmin, self).queryset(request)
         if request.user.is_superuser:
@@ -123,5 +125,7 @@ class CourseLogEntryAdmin(admin.ModelAdmin):
         return super(CourseLogEntryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(CourseLogEntry, CourseLogEntryAdmin)
+
+admin.site.register(ProgramObjective)
 
 # Course Outline 

@@ -4,7 +4,8 @@ from cscm.views.reports_list import *
 from cscm.views.main_menu import *
 from cscm.views.report_nceac_courselog import *
 from cscm.views.report_qec_courselog import *    
-from cscm.views.report_qec_course_catalog import * 
+from cscm.views.report_qec_course_catalog import *
+from cscm.views.report_qec_program_objectives import *  
 from cscm.views.report_nceac_coursedesc import * 
 from cscm.views.report_internal_courseoutline import * 
 from csip.views.report_nceac_faculty_profile import *
@@ -37,6 +38,7 @@ urlpatterns = patterns('',
     url(r'^reports/nceac/courselog', report_nceac_courselog),
     url(r'^reports/qec/courselog', report_qec_courselog),
     url(r'^reports/qec/coursecatalog', report_qec_course_catalog),
+    url(r'^reports/qec/programobjectives', report_qec_program_objectives),
     url(r'^reports/qec/interestareas', report_qec_interest_areas),
     url(r'^reports/qec/publicationlist', report_qec_list_publications),
     url(r'^reports/qec/faculty-cv', report_qec_faculty_profile),

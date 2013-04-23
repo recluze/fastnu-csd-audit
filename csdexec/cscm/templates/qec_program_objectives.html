@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<title>FAST NU Computer Science Department</title>
+		<style>
+			h1 {
+				font-weight: 200;
+			}
+			body {
+				font-weight: 200;
+				font-family: 'Sans Serif', 'Sans-serif', 'Helvetica';
+			}
+			.restable {
+				font-family: 'Sans Serif';
+				border: 1px solid #EEEEEE;
+			}
+			.restable td, .restable th {
+				border-bottom: 1px solid gray;
+				border-left: 1px solid #eee;
+				padding: 5px;
+				margin: 0px;
+				text-align: center;
+				font-size: smaller;
+				font-weight: 200;
+			}
+			.restable th {
+				color: black;
+				font-weight: 500;
+				border-top: 2px solid #00cc00;
+				border-bottom: 2px solid #99cc00;
+				padding: 5px;
+			}
+			th.lalign, td.lalign {
+				text-align: left;
+			}
+			.odd {
+				background-color: #eee; 
+				}
+				
+			.even { 
+				background-color: #fff;
+				}
+			xtable {border:1px solid #000}
+			xtd, xth {border:1px solid #000}
+		</style>
+	</head>
+	<body>
+		<h1>FAST NU Computer Science Department - Course Catalog</h1>
+
+		<!-- SHOW THE FORM  -->
+		{% if form != None %}
+
+		<strong>Please select the following details to generate results for.</strong>
+
+		<div class='form'>
+			<form method='post'>
+				{%csrf_token%}
+				{{form.as_ul}}
+				<input type='submit' value='Generate' />
+			</form>
+		</div>
+
+		{% else %}
+		 
+		<!-- SHOW THE RESULTS -->
+	
+		{% autoescape off %}
+		<table border="1" bordercolor="black" cellspacing="0" cellpadding="0" style="border: 1px black solid; border-collapse: collapse;">
+		<tr>
+		<th rowspan="2">No.</th>
+		<th align='left' rowspan="2">Course</th>
+		<th rowspan="2">Semester</th>
+		<th rowspan="2">Year</th>
+		<th colspan="{{num_objectives}}">Program Objectives</th>
+		</tr>
+		<tr>
+		
+		{% for ob in all_objectives %}
+		   <th>{{ob.objectiveOrder}}</th>
+ 		{% endfor %}
+ 		</tr>
+		{% for course, m in cdict.items %}
+		<tr class="{% cycle 'odd' 'even' %}">
+			<td class="{% cycle 'odd' 'even' %}">{{forloop.counter}}</td> 
+			<td class="{% cycle 'odd' 'even' %} "> {{course.course_name}}</td>
+			<td class="{% cycle 'odd' 'even' %} "> {{course.semester}}</td>
+			<td class="{% cycle 'odd' 'even' %} "> {{course.year}}</td>
+			{% for ob in m %}
+		   		<td align='center'>{{ob}}</td>
+ 			{% endfor %}
+		</tr>
+		{% endfor %}
+		</table>
+		{% endautoescape %}
+		
+		
+		
+		
+				
+		<h2>Program Objectives</h2>
+		<ol>
+		{% for ob in all_objectives %}
+		   <li value='{{ob.objectiveOrder}}'>{{ob.objectiveText}}</li>
+ 		{% endfor %}
+ 		</ol>
+		
+		<h2>Missing outline for courses</h2> 		
+		{% for c in missed_courses %}
+		   {{ c.course_name }} ({{ c.semester }} {{ c.year }}) -- {{c.instructor}} <br />
+ 		{% endfor %}
+		{% endif %} 
+
+		<h1>Meta</h1>
+		<ul>
+			<li>
+				<a href='/admin/logout'>Logout</a>
+			</li>
+		</ul>
+	</body>
+</html>
